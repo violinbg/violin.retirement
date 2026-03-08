@@ -10,6 +10,9 @@ violin.retirement
 # Angular (ui/.gitignore handles node_modules etc.)
 ui/dist/
 
+# Node (root dev tools)
+node_modules/
+
 # IDE
 .idea/
 *.swp

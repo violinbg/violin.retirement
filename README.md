@@ -11,8 +11,11 @@ A retirement savings tracker for people pursuing FIRE (Financial Independence, R
 ## Quick Start
 
 ```bash
+# Install root dev tools (first time only)
+npm install
+
 # Build everything
-make build
+npm run build
 
 # Run
 ./violin.retirement.exe
@@ -23,13 +26,15 @@ make build
 ## Development
 
 ```bash
-# Terminal 1: Go backend
-make dev-server
+# Install root dev tools (first time only)
+npm install
 
-# Terminal 2: Angular dev server (proxies /api to :8080)
-make dev-ui
+# Run both backend and Angular dev server concurrently
+npm run dev
 
-# Open http://localhost:4200
+# Or separately:
+npm run dev:server   # Go backend on :8080
+npm run dev:ui       # Angular dev server on :4200 (proxies /api to :8080)
 ```
 
 ## Project Structure

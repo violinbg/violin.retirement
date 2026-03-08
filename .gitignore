@@ -1,0 +1,16 @@
+# Go
+violin.retirement.exe
+violin.retirement
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+
+# Angular (ui/.gitignore handles node_modules etc.)
+ui/dist/
+
+# IDE
+.idea/
+*.swp
+*.swo

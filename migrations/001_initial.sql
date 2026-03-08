@@ -1,0 +1,2 @@
+-- Initial schema placeholder.
+-- Add tables here as requirements are defined.

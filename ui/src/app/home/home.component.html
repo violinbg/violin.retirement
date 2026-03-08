@@ -1,0 +1,44 @@
+<div class="home">
+  <section class="hero">
+    <p class="hero__eyebrow">
+      <i class="pi pi-bolt"></i>
+      Financial Independence · Retire Early
+    </p>
+
+    <h1 class="hero__title">
+      Your path to<br />
+      <span>financial freedom</span>
+    </h1>
+
+    <p class="hero__subtitle">
+      Track your portfolio, model retirement scenarios, and stay on course —
+      all in one elegant dashboard built for the FIRE journey.
+    </p>
+
+    <div class="hero__actions">
+      <p-button label="Get Started" icon="pi pi-arrow-right" iconPos="right" size="large" />
+      <p-button label="Learn More" icon="pi pi-info-circle" severity="secondary" [outlined]="true" size="large" />
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features__grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <i [class]="feature.icon"></i>
+          </div>
+          <h3 class="feature-card__title">{{ feature.title }}</h3>
+          <p class="feature-card__description">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <footer class="status-bar">
+    <i class="pi pi-check-circle"></i>
+    <span>System operational</span>
+    <span>·</span>
+    <span>violin.retirement v0.1.0</span>
+  </footer>
+</div>

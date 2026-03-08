@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { updateSurfacePalette } from '@primeuix/themes';
+import { sohoSurface } from './theme';
 
 @Component({
   selector: 'vr-root',
@@ -7,6 +9,8 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('ui');
+export class App implements OnInit {
+  ngOnInit(): void {
+    updateSurfacePalette(sohoSurface);
+  }
 }

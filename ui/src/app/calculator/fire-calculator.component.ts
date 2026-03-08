@@ -9,6 +9,21 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { ChartModule } from 'primeng/chart';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../core/services/auth.service';
+import { FireCalculatorService } from '../core/services/fire-calculator.service';
+
+const DEFAULTS = {
+  currentAge: 30,
+  currentPortfolio: 50_000,
+  annualIncome: 80_000,
+  annualExpenses: 50_000,
+  expectedReturn: 7,
+  withdrawalRate: 4,
+  retirementSpending: 50_000,
+};
 
 @Component({
   selector: 'vr-fire-calculator',
@@ -23,21 +38,28 @@ import { TooltipModule } from 'primeng/tooltip';
     DividerModule,
     ChartModule,
     TooltipModule,
+    ToastModule,
   ],
+  providers: [MessageService],
   templateUrl: './fire-calculator.component.html',
   styleUrl: './fire-calculator.component.scss',
 })
 export class FireCalculatorComponent implements OnInit {
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
+  private readonly fireService = inject(FireCalculatorService);
+  private readonly messageService = inject(MessageService);
 
   // ── Inputs ──────────────────────────────────────────────────────────────
-  currentAge = signal(30);
-  currentPortfolio = signal(50_000);
-  annualIncome = signal(80_000);
-  annualExpenses = signal(50_000);
-  expectedReturn = signal(7);     // % real return
-  withdrawalRate = signal(4);     // % SWR
-  retirementSpending = signal(50_000); // annual spending in retirement
+  currentAge = signal(DEFAULTS.currentAge);
+  currentPortfolio = signal(DEFAULTS.currentPortfolio);
+  annualIncome = signal(DEFAULTS.annualIncome);
+  annualExpenses = signal(DEFAULTS.annualExpenses);
+  expectedReturn = signal(DEFAULTS.expectedReturn);
+  withdrawalRate = signal(DEFAULTS.withdrawalRate);
+  retirementSpending = signal(DEFAULTS.retirementSpending);
+
+  isSaving = signal(false);
 
   // ── Derived results ──────────────────────────────────────────────────────
   readonly savingsRate = computed(() => {
@@ -96,7 +118,22 @@ export class FireCalculatorComponent implements OnInit {
   chartOptions: any = null;
 
   ngOnInit(): void {
-    this.buildChart();
+    if (this.auth.isLoggedIn()) {
+      firstValueFrom(this.fireService.load()).then(s => {
+        if (s) {
+          this.currentAge.set(s.current_age);
+          this.currentPortfolio.set(s.current_portfolio);
+          this.annualIncome.set(s.annual_income);
+          this.annualExpenses.set(s.annual_expenses);
+          this.expectedReturn.set(s.expected_return);
+          this.withdrawalRate.set(s.withdrawal_rate);
+          this.retirementSpending.set(s.retirement_spending);
+        }
+        this.buildChart();
+      });
+    } else {
+      this.buildChart();
+    }
   }
 
   recalculate(): void {
@@ -208,6 +245,37 @@ export class FireCalculatorComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  async saveSettings(): Promise<void> {
+    this.isSaving.set(true);
+    const ok = await firstValueFrom(this.fireService.save({
+      current_age: this.currentAge(),
+      current_portfolio: this.currentPortfolio(),
+      annual_income: this.annualIncome(),
+      annual_expenses: this.annualExpenses(),
+      expected_return: this.expectedReturn(),
+      withdrawal_rate: this.withdrawalRate(),
+      retirement_spending: this.retirementSpending(),
+    }));
+    this.isSaving.set(false);
+    if (ok) {
+      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Your FIRE settings have been saved.' });
+    } else {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not save settings. Please try again.' });
+    }
+  }
+
+  resetToDefaults(): void {
+    this.currentAge.set(DEFAULTS.currentAge);
+    this.currentPortfolio.set(DEFAULTS.currentPortfolio);
+    this.annualIncome.set(DEFAULTS.annualIncome);
+    this.annualExpenses.set(DEFAULTS.annualExpenses);
+    this.expectedReturn.set(DEFAULTS.expectedReturn);
+    this.withdrawalRate.set(DEFAULTS.withdrawalRate);
+    this.retirementSpending.set(DEFAULTS.retirementSpending);
+    this.buildChart();
+    this.messageService.add({ severity: 'info', summary: 'Reset', detail: 'Calculator reset to defaults.' });
   }
 
   isFinite(n: number): boolean {

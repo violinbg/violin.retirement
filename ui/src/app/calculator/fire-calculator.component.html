@@ -1,3 +1,4 @@
+<p-toast position="bottom-right" />
 <div class="calculator">
   <header class="calc-header">
     <p-button
@@ -12,6 +13,25 @@
       <span>FIRE Calculator</span>
     </div>
     <span class="calc-header__spacer"></span>
+    @if (auth.isLoggedIn()) {
+      <p-button
+        label="Defaults"
+        icon="pi pi-refresh"
+        severity="secondary"
+        [outlined]="true"
+        size="small"
+        (onClick)="resetToDefaults()"
+        pTooltip="Reset to default values"
+      />
+      <p-button
+        label="Save"
+        icon="pi pi-save"
+        size="small"
+        [loading]="isSaving()"
+        (onClick)="saveSettings()"
+        pTooltip="Save your settings"
+      />
+    }
   </header>
 
   <div class="calc-body">

@@ -187,19 +187,31 @@
 // ── Chart ─────────────────────────────────────────────────────────────────────
 .chart-container {
   height: 360px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
+  @media (max-width: 600px) {
+    height: 280px;
+  }
 
   &__chart {
     display: block;
     height: 100%;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
 ::ng-deep .chart-container .p-chart {
   height: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 ::ng-deep .chart-container .p-chart canvas {
   height: 100% !important;
+  max-width: 100% !important;
 }
 
 ::ng-deep .chart-card .p-card-body {

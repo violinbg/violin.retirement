@@ -1,3 +1,6 @@
+// PrimeIcons
+@import 'primeicons/primeicons.css';
+
 * {
   box-sizing: border-box;
 }
@@ -10,4 +13,20 @@ body {
   font-family: var(--p-font-family, system-ui, -apple-system, sans-serif);
   background-color: var(--p-surface-0);
   color: var(--p-text-color);
+}
+
+// Utility classes
+.w-full {
+  width: 100% !important;
+}
+
+// PrimeNG p-password component full width fix
+p-password {
+  width: 100%;
+  display: block;
+
+  .p-password {
+    width: 100%;
+    display: flex;
+  }
 }

@@ -1,4 +1,43 @@
 <div class="home">
+  <!-- Sticky header -->
+  <header class="site-header">
+    <span class="site-header__logo">
+      <i class="pi pi-chart-line"></i>
+      Violin Retirement
+    </span>
+    <nav class="site-header__nav">
+      @if (auth.isLoggedIn()) {
+        <span class="site-header__user">
+          <i class="pi pi-user"></i>
+          {{ auth.currentUser()?.full_name }}
+        </span>
+        <p-button
+          label="Dashboard"
+          icon="pi pi-th-large"
+          size="small"
+          (onClick)="goToDashboard()"
+        />
+        <p-button
+          label="Sign Out"
+          icon="pi pi-sign-out"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (onClick)="logout()"
+        />
+      } @else {
+        <p-button
+          label="Sign In"
+          icon="pi pi-sign-in"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (onClick)="showLoginDialog.set(true)"
+        />
+      }
+    </nav>
+  </header>
+
   <section class="hero">
     <p class="hero__eyebrow">
       <i class="pi pi-bolt"></i>
@@ -16,7 +55,11 @@
     </p>
 
     <div class="hero__actions">
-      <p-button label="Get Started" icon="pi pi-arrow-right" iconPos="right" size="large" />
+      @if (auth.isLoggedIn()) {
+        <p-button label="Go to Dashboard" icon="pi pi-th-large" iconPos="left" size="large" (onClick)="goToDashboard()" />
+      } @else {
+        <p-button label="Get Started" icon="pi pi-arrow-right" iconPos="left" size="large" (onClick)="showLoginDialog.set(true)" />
+      }
       <p-button label="Learn More" icon="pi pi-info-circle" severity="secondary" [outlined]="true" size="large" />
     </div>
   </section>
@@ -24,12 +67,15 @@
   <section class="features">
     <div class="features__grid">
       @for (feature of features; track feature.title) {
-        <div class="feature-card">
+        <div class="feature-card" [class.feature-card--clickable]="feature.route" [routerLink]="feature.route">
           <div class="feature-card__icon">
             <i [class]="feature.icon"></i>
           </div>
           <h3 class="feature-card__title">{{ feature.title }}</h3>
           <p class="feature-card__description">{{ feature.description }}</p>
+          @if (feature.route) {
+            <span class="feature-card__cta">Try it <i class="pi pi-arrow-right"></i></span>
+          }
         </div>
       }
     </div>
@@ -39,6 +85,10 @@
     <i class="pi pi-check-circle"></i>
     <span>System operational</span>
     <span>·</span>
-    <span>violin.retirement v0.1.0</span>
+    <span>Violin Retirement v0.1.0</span>
   </footer>
 </div>
+
+@if (showLoginDialog()) {
+  <vr-login-dialog (closed)="showLoginDialog.set(false)" />
+}

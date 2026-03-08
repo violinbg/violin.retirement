@@ -1,0 +1,243 @@
+<div class="calculator">
+  <header class="calc-header">
+    <p-button
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      (onClick)="goBack()"
+      pTooltip="Back to home"
+    />
+    <div class="calc-header__title">
+      <i class="pi pi-calculator"></i>
+      <span>FIRE Calculator</span>
+    </div>
+    <span class="calc-header__spacer"></span>
+  </header>
+
+  <div class="calc-body">
+    <!-- ── Left: inputs ─────────────────────────────────────────────── -->
+    <aside class="inputs-panel">
+      <p-card>
+        <ng-template pTemplate="title">Your Numbers</ng-template>
+
+        <div class="input-group">
+          <label>Current Age</label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="currentAge"
+              [ngModelOptions]="{ standalone: true }"
+              [min]="18" [max]="80" [step]="1"
+              suffix=" yrs"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="currentAge"
+            [min]="18" [max]="80"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>Current Portfolio</label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="currentPortfolio"
+              [ngModelOptions]="{ standalone: true }"
+              mode="currency" currency="USD" locale="en-US"
+              [min]="0" [max]="10000000" [step]="1000"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="currentPortfolio"
+            [min]="0" [max]="2000000" [step]="5000"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>Annual Income</label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="annualIncome"
+              [ngModelOptions]="{ standalone: true }"
+              mode="currency" currency="USD" locale="en-US"
+              [min]="0" [max]="2000000" [step]="1000"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="annualIncome"
+            [min]="0" [max]="500000" [step]="5000"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>Annual Expenses</label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="annualExpenses"
+              [ngModelOptions]="{ standalone: true }"
+              mode="currency" currency="USD" locale="en-US"
+              [min]="0" [max]="2000000" [step]="1000"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="annualExpenses"
+            [min]="0" [max]="300000" [step]="1000"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>
+            Retirement Annual Spending
+            <i class="pi pi-info-circle"
+               pTooltip="How much you plan to spend per year in retirement"
+               tooltipPosition="right"></i>
+          </label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="retirementSpending"
+              [ngModelOptions]="{ standalone: true }"
+              mode="currency" currency="USD" locale="en-US"
+              [min]="0" [max]="2000000" [step]="1000"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="retirementSpending"
+            [min]="0" [max]="300000" [step]="1000"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>
+            Expected Real Return
+            <i class="pi pi-info-circle"
+               pTooltip="Annual investment return after inflation (7% is a common stock market estimate)"
+               tooltipPosition="right"></i>
+          </label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="expectedReturn"
+              [ngModelOptions]="{ standalone: true }"
+              [min]="1" [max]="20" [step]="0.5"
+              [minFractionDigits]="1" [maxFractionDigits]="1"
+              suffix="%"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="expectedReturn"
+            [min]="1" [max]="15" [step]="0.5"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+        <p-divider />
+
+        <div class="input-group">
+          <label>
+            Safe Withdrawal Rate
+            <i class="pi pi-info-circle"
+               pTooltip="The annual percentage of your portfolio you'll withdraw. The classic '4% rule' comes from the Trinity Study."
+               tooltipPosition="right"></i>
+          </label>
+          <div class="input-row">
+            <p-inputnumber
+              [(ngModel)]="withdrawalRate"
+              [ngModelOptions]="{ standalone: true }"
+              [min]="1" [max]="10" [step]="0.25"
+              [minFractionDigits]="2" [maxFractionDigits]="2"
+              suffix="%"
+              (ngModelChange)="recalculate()"
+            />
+          </div>
+          <p-slider
+            [(ngModel)]="withdrawalRate"
+            [min]="2" [max]="8" [step]="0.25"
+            (ngModelChange)="recalculate()"
+          />
+        </div>
+
+      </p-card>
+    </aside>
+
+    <!-- ── Right: results + chart ────────────────────────────────────── -->
+    <main class="results-panel">
+
+      <!-- Result cards row -->
+      <div class="result-cards">
+        <div class="result-card result-card--primary">
+          <span class="result-card__label">FIRE Number</span>
+          <span class="result-card__value">{{ formatCurrency(fireNumber()) }}</span>
+          <span class="result-card__sub">Your nest egg target</span>
+        </div>
+
+        <div class="result-card">
+          <span class="result-card__label">Savings Rate</span>
+          <span class="result-card__value">{{ savingsRate() | number:'1.0-1' }}%</span>
+          <span class="result-card__sub">{{ formatCurrency(annualSavings()) }} / yr saved</span>
+        </div>
+
+        <div class="result-card">
+          <span class="result-card__label">Years to FIRE</span>
+          @if (isFinite(yearsToFire())) {
+            <span class="result-card__value">{{ yearsToFire() | number:'1.0-1' }}</span>
+            <span class="result-card__sub">years remaining</span>
+          } @else {
+            <span class="result-card__value result-card__value--warn">∞</span>
+            <span class="result-card__sub">increase savings rate</span>
+          }
+        </div>
+
+        <div class="result-card">
+          <span class="result-card__label">FI Date</span>
+          @if (fiAge()) {
+            <span class="result-card__value">Age {{ fiAge() }}</span>
+            <span class="result-card__sub">{{ fiYear() }}</span>
+          } @else if (currentPortfolio() >= fireNumber()) {
+            <span class="result-card__value result-card__value--success">Now! 🎉</span>
+            <span class="result-card__sub">You've reached FIRE</span>
+          } @else {
+            <span class="result-card__value result-card__value--warn">—</span>
+            <span class="result-card__sub">adjust your inputs</span>
+          }
+        </div>
+      </div>
+
+      <!-- Chart -->
+      @if (chartData) {
+        <p-card styleClass="chart-card">
+          <ng-template pTemplate="title">Portfolio Growth Projection</ng-template>
+          <div class="chart-container">
+            <p-chart class="chart-container__chart" type="line" [data]="chartData" [options]="chartOptions" />
+          </div>
+        </p-card>
+      }
+
+      <!-- Disclaimer -->
+      <p class="disclaimer">
+        <i class="pi pi-info-circle"></i>
+        This calculator provides estimates for educational purposes only. It assumes constant
+        returns and does not account for taxes, inflation variability, or sequence-of-returns risk.
+        Consult a financial advisor before making investment decisions.
+      </p>
+    </main>
+  </div>
+</div>

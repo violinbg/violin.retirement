@@ -1,0 +1,32 @@
+<div class="dashboard">
+  <header class="dashboard__header">
+    <span class="dashboard__logo">
+      <i class="pi pi-chart-line"></i>
+      Violin Retirement
+    </span>
+    <div class="dashboard__user">
+      <span class="dashboard__username">
+        <i class="pi pi-user"></i>
+        {{ auth.currentUser()?.full_name }}
+      </span>
+      <p-button
+        label="Sign Out"
+        icon="pi pi-sign-out"
+        severity="secondary"
+        [outlined]="true"
+        size="small"
+        (onClick)="logout()"
+      />
+    </div>
+  </header>
+
+  <main class="dashboard__content">
+    <p-card styleClass="dashboard__welcome-card">
+      <div class="welcome">
+        <i class="pi pi-sun welcome__icon"></i>
+        <h1 class="welcome__title">Welcome back, {{ auth.currentUser()?.full_name }}!</h1>
+        <p class="welcome__subtitle">Your retirement dashboard is coming soon. Stay tuned.</p>
+      </div>
+    </p-card>
+  </main>
+</div>

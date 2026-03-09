@@ -22,8 +22,8 @@ var uiFS embed.FS
 var migrationsFS embed.FS
 
 func main() {
-	addr := flag.String("addr", ":8080", "HTTP listen address")
-	dbPath := flag.String("db", "violin.retirement.db", "SQLite database path")
+	addr := flag.String("addr", "", "HTTP listen address")  // do not set default here to allow env var override in resolveAddr
+	dbPath := flag.String("db", "", "SQLite database path") // directly use the flag value without normalization to allow env var override in resolveDBPath
 	flag.Parse()
 
 	finalAddr := resolveAddr(*addr)

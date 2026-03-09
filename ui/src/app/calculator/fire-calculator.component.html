@@ -1,38 +1,13 @@
 <p-toast position="bottom-right" />
 <div class="calculator">
-  <header class="calc-header">
-    <p-button
-      icon="pi pi-arrow-left"
-      severity="secondary"
-      [text]="true"
-      (onClick)="goBack()"
-      pTooltip="Back to home"
-    />
-    <div class="calc-header__title">
-      <i class="pi pi-calculator"></i>
-      <span>FIRE Calculator</span>
-    </div>
-    <span class="calc-header__spacer"></span>
-    @if (auth.isLoggedIn()) {
-      <p-button
-        label="Defaults"
-        icon="pi pi-refresh"
-        severity="secondary"
-        [outlined]="true"
-        size="small"
-        (onClick)="resetToDefaults()"
-        pTooltip="Reset to default values"
-      />
-      <p-button
-        label="Save"
-        icon="pi pi-save"
-        size="small"
-        [loading]="isSaving()"
-        (onClick)="saveSettings()"
-        pTooltip="Save your settings"
-      />
-    }
-  </header>
+  <vr-app-header
+    title="FIRE Calculator"
+    logoIcon="pi pi-calculator"
+    [leftAction]="headerLeftAction"
+    [actions]="headerActions"
+    [showUsername]="false"
+    (actionClick)="onHeaderAction($event)"
+  />
 
   <div class="calc-body">
     <!-- ── Left: inputs ─────────────────────────────────────────────── -->

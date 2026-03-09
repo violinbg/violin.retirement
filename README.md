@@ -37,6 +37,81 @@ npm run dev:server   # Go backend on :8080
 npm run dev:ui       # Angular dev server on :4200 (proxies /api to :8080)
 ```
 
+## Deployment
+
+### Docker (Alpine)
+
+Build the container image:
+
+```bash
+docker build -t violin-retirement:latest .
+```
+
+Run with a named Docker volume:
+
+```bash
+docker run --rm \
+	-p 8080:8080 \
+	-e PORT=8080 \
+	-e DB_PATH=/data/violin.retirement.db \
+	-v violin_retirement_data:/data \
+	violin-retirement:latest
+```
+
+Run with a host data folder so the SQLite file is created on your machine.
+
+Linux/macOS:
+
+```bash
+mkdir -p ./data
+docker run --rm \
+	-p 8080:8080 \
+	-e PORT=8080 \
+	-e DB_PATH=/data/violin.retirement.db \
+	-v "$(pwd)/data:/data" \
+	violin-retirement:latest
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force .\data | Out-Null
+docker run --rm `
+	-p 8080:8080 `
+	-e PORT=8080 `
+	-e DB_PATH=/data/violin.retirement.db `
+	-v "${PWD}\data:/data" `
+	violin-retirement:latest
+```
+
+In both examples, the database file will be created at:
+
+- `./data/violin.retirement.db` on your host
+- `/data/violin.retirement.db` inside the container
+
+### Runtime configuration precedence
+
+Configuration resolution order is:
+
+1. CLI flags
+2. Environment variables
+3. Defaults
+
+Supported values:
+
+- Listen address: `-addr` > `PORT` > `:8080`
+- Database path: `-db` > `DB_PATH` > `violin.retirement.db`
+
+Examples:
+
+```bash
+# Env vars only
+PORT=9090 DB_PATH=/data/custom.db ./violin.retirement
+
+# Flags override env vars
+PORT=9090 DB_PATH=/data/custom.db ./violin.retirement -addr :7070 -db ./local.db
+```
+
 ## Project Structure
 
 ```

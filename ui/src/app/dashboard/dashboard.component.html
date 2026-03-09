@@ -1,24 +1,11 @@
 <div class="dashboard">
-  <header class="dashboard__header">
-    <span class="dashboard__logo">
-      <i class="pi pi-chart-line"></i>
-      Violin Retirement
-    </span>
-    <div class="dashboard__user">
-      <span class="dashboard__username">
-        <i class="pi pi-user"></i>
-        {{ auth.currentUser()?.full_name }}
-      </span>
-      <p-button
-        label="Sign Out"
-        icon="pi pi-sign-out"
-        severity="secondary"
-        [outlined]="true"
-        size="small"
-        (onClick)="logout()"
-      />
-    </div>
-  </header>
+  <vr-app-header
+    title="Violin Retirement"
+    logoIcon="pi pi-chart-line"
+    [username]="auth.currentUser()?.full_name ?? null"
+    [actions]="headerActions"
+    (actionClick)="onHeaderAction($event)"
+  />
 
   <main class="dashboard__content">
     <p-card styleClass="dashboard__welcome-card">

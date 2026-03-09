@@ -13,37 +13,6 @@
   }
 }
 
-// ── Header ──────────────────────────────────────────────────────────────────
-.calc-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--p-surface-card);
-  border-bottom: 1px solid var(--p-content-border-color);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--p-text-color);
-
-    i {
-      color: var(--p-primary-color);
-      font-size: 1.25rem;
-    }
-  }
-
-  &__spacer {
-    flex: 1;
-  }
-}
-
 // ── Body layout ─────────────────────────────────────────────────────────────
 .calc-body {
   flex: 1;

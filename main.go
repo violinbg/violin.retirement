@@ -6,6 +6,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/violinbg/violin.retirement/internal/database"
@@ -23,7 +26,16 @@ func main() {
 	dbPath := flag.String("db", "violin.retirement.db", "SQLite database path")
 	flag.Parse()
 
-	db, err := database.Open(*dbPath)
+	finalAddr := resolveAddr(*addr)
+	finalDBPath := resolveDBPath(*dbPath)
+
+	if dir := filepath.Dir(finalDBPath); dir != "." && dir != "" {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.Fatalf("failed to create database directory: %v", err)
+		}
+	}
+
+	db, err := database.Open(finalDBPath)
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}
@@ -39,12 +51,44 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		log.Printf("server listening on %s", *addr)
-		if err := srv.Run(*addr); err != nil {
+		log.Printf("server listening on %s", finalAddr)
+		if err := srv.Run(finalAddr); err != nil {
 			log.Fatalf("server error: %v", err)
 		}
 	}()
 
 	<-quit
 	log.Println("shutting down...")
+}
+
+func resolveAddr(addrFlag string) string {
+	if trimmed := strings.TrimSpace(addrFlag); trimmed != "" {
+		return normalizeAddr(trimmed)
+	}
+
+	if port := strings.TrimSpace(os.Getenv("PORT")); port != "" {
+		return normalizeAddr(port)
+	}
+
+	return ":8080"
+}
+
+func resolveDBPath(dbFlag string) string {
+	if trimmed := strings.TrimSpace(dbFlag); trimmed != "" {
+		return trimmed
+	}
+
+	if envDBPath := strings.TrimSpace(os.Getenv("DB_PATH")); envDBPath != "" {
+		return envDBPath
+	}
+
+	return "violin.retirement.db"
+}
+
+func normalizeAddr(addr string) string {
+	if _, err := strconv.Atoi(addr); err == nil {
+		return ":" + addr
+	}
+
+	return addr
 }

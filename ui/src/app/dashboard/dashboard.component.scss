@@ -8,45 +8,6 @@
     background-color: var(--p-surface-950);
   }
 
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    background: var(--p-surface-0);
-    border-bottom: 1px solid var(--p-surface-200);
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--p-surface-900);
-      border-bottom-color: var(--p-surface-700);
-    }
-  }
-
-  &__logo {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--p-text-color);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i { color: var(--p-primary-color); }
-  }
-
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  &__username {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: var(--p-text-muted-color);
-  }
-
   &__content {
     flex: 1;
     display: flex;

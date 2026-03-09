@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { SliderModule } from 'primeng/slider';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { ChartModule } from 'primeng/chart';
 import { TooltipModule } from 'primeng/tooltip';
@@ -14,6 +13,8 @@ import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { FireCalculatorService } from '../core/services/fire-calculator.service';
+import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
+import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 
 const DEFAULTS = {
   currentAge: 30,
@@ -25,6 +26,15 @@ const DEFAULTS = {
   retirementSpending: 50_000,
 };
 
+const headerLeftAction = {
+  id: 'back',
+  icon: 'pi pi-arrow-left',
+  severity: 'secondary',
+  text: true,
+  size: 'small',
+  tooltip: 'Back to home',
+} as AppHeaderAction;
+
 @Component({
   selector: 'vr-fire-calculator',
   standalone: true,
@@ -34,11 +44,11 @@ const DEFAULTS = {
     SliderModule,
     InputNumberModule,
     CardModule,
-    ButtonModule,
     DividerModule,
     ChartModule,
     TooltipModule,
     ToastModule,
+    AppHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './fire-calculator.component.html',
@@ -49,6 +59,7 @@ export class FireCalculatorComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly fireService = inject(FireCalculatorService);
   private readonly messageService = inject(MessageService);
+  readonly headerLeftAction = headerLeftAction;
 
   // ── Inputs ──────────────────────────────────────────────────────────────
   currentAge = signal(DEFAULTS.currentAge);
@@ -117,6 +128,30 @@ export class FireCalculatorComponent implements OnInit {
   chartData: any = null;
   chartOptions: any = null;
 
+  get headerActions(): AppHeaderAction[] {
+    if (!this.auth.isLoggedIn()) return [];
+
+    return [
+      {
+        id: 'defaults',
+        label: 'Defaults',
+        icon: 'pi pi-refresh',
+        severity: 'secondary',
+        outlined: true,
+        size: 'small',
+        tooltip: 'Reset to default values',
+      } as AppHeaderAction,
+      {
+        id: 'save',
+        label: 'Save',
+        icon: 'pi pi-save',
+        size: 'small',
+        loading: this.isSaving(),
+        tooltip: 'Save your settings',
+      } as AppHeaderAction,
+    ];
+  }
+
   ngOnInit(): void {
     if (this.auth.isLoggedIn()) {
       firstValueFrom(this.fireService.load()).then(s => {
@@ -162,7 +197,10 @@ export class FireCalculatorComponent implements OnInit {
     }
 
     const docStyle = getComputedStyle(document.documentElement);
-    const textColor = docStyle.getPropertyValue('--p-text-color').trim() || '#666';
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const textColor = isDarkMode 
+      ? '#e2e8f0'  // Light gray for dark mode
+      : docStyle.getPropertyValue('--p-text-color').trim() || '#666';
     const gridColor = docStyle.getPropertyValue('--p-content-border-color').trim() || '#e0e0e0';
     const primaryColor = docStyle.getPropertyValue('--p-primary-color').trim() || '#000';
     const successColor = docStyle.getPropertyValue('--p-green-500').trim() || '#22c55e';
@@ -276,6 +314,20 @@ export class FireCalculatorComponent implements OnInit {
     this.retirementSpending.set(DEFAULTS.retirementSpending);
     this.buildChart();
     this.messageService.add({ severity: 'info', summary: 'Reset', detail: 'Calculator reset to defaults.' });
+  }
+
+  onHeaderAction(actionId: string): void {
+    switch (actionId) {
+      case 'back':
+        this.goBack();
+        break;
+      case 'defaults':
+        this.resetToDefaults();
+        break;
+      case 'save':
+        void this.saveSettings();
+        break;
+    }
   }
 
   isFinite(n: number): boolean {

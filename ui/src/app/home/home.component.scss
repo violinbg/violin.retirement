@@ -9,48 +9,6 @@
   }
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 2rem;
-  background: var(--p-surface-0);
-  border-bottom: 1px solid var(--p-surface-200);
-  backdrop-filter: blur(8px);
-
-  @media (prefers-color-scheme: dark) {
-    background: color-mix(in srgb, var(--p-surface-900) 90%, transparent);
-    border-bottom-color: var(--p-surface-700);
-  }
-
-  &__logo {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--p-text-color);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    i { color: var(--p-primary-color); }
-  }
-
-  &__nav {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.875rem;
-    color: var(--p-text-muted-color);
-  }
-}
-
 
 
 .hero {

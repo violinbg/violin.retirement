@@ -6,11 +6,13 @@ import { TagModule } from 'primeng/tag';
 import { AuthService } from '../core/services/auth.service';
 import { LoginDialogComponent } from '../auth/login-dialog/login-dialog.component';
 import { RouterModule } from '@angular/router';
+import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
+import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 
 @Component({
   selector: 'vr-home',
   standalone: true,
-  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, RouterModule],
+  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, RouterModule, AppHeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -46,6 +48,58 @@ export class HomeComponent {
       route: null as string | null,
     }
   ];
+
+  get headerUsername(): string | null {
+    return this.auth.isLoggedIn() ? (this.auth.currentUser()?.full_name ?? null) : null;
+  }
+
+  get headerActions(): AppHeaderAction[] {
+    if (this.auth.isLoggedIn()) {
+      return [
+        {
+          id: 'dashboard',
+          label: 'Dashboard',
+          icon: 'pi pi-th-large',
+          size: 'small',
+        },
+        {
+          id: 'logout',
+          label: 'Sign Out',
+          icon: 'pi pi-sign-out',
+          severity: 'secondary',
+          outlined: true,
+          size: 'small',
+        },
+      ];
+    }
+
+    return [
+      {
+        id: 'signin',
+        label: 'Sign In',
+        icon: 'pi pi-sign-in',
+        severity: 'secondary',
+        outlined: true,
+        size: 'small',
+      },
+    ];
+  }
+
+  onHeaderAction(actionId: string): void {
+    if (actionId === 'dashboard') {
+      this.goToDashboard();
+      return;
+    }
+
+    if (actionId === 'logout') {
+      this.logout();
+      return;
+    }
+
+    if (actionId === 'signin') {
+      this.showLoginDialog.set(true);
+    }
+  }
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);

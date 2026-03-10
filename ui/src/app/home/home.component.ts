@@ -5,14 +5,13 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../core/services/auth.service';
 import { LoginDialogComponent } from '../auth/login-dialog/login-dialog.component';
-import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 
 @Component({
   selector: 'vr-home',
   standalone: true,
-  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, RouterModule, AppHeaderComponent],
+  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, AppHeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -107,5 +106,22 @@ export class HomeComponent {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  onFeatureClick(route: string | null): void {
+    if (!route) return;
+
+    if (route === '/portfolio' && !this.auth.isLoggedIn()) {
+      this.showLoginDialog.set(true);
+      return;
+    }
+
+    this.router.navigate([route]);
+  }
+
+  onFeatureKeydown(event: KeyboardEvent, route: string | null): void {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    this.onFeatureClick(route);
   }
 }

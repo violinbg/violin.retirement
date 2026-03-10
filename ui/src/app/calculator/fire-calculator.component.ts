@@ -28,11 +28,12 @@ const DEFAULTS = {
 
 const headerLeftAction = {
   id: 'back',
+  label: 'Back',
   icon: 'pi pi-arrow-left',
   severity: 'secondary',
-  text: true,
+  outlined: true,
   size: 'small',
-  tooltip: 'Back to home',
+  tooltip: 'Back',
 } as AppHeaderAction;
 
 @Component({
@@ -282,7 +283,7 @@ export class FireCalculatorComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.router.navigate([this.auth.isLoggedIn() ? '/dashboard' : '/']);
   }
 
   async saveSettings(): Promise<void> {

@@ -36,7 +36,14 @@
   <section class="features">
     <div class="features__grid">
       @for (feature of features; track feature.title) {
-        <div class="feature-card" [class.feature-card--clickable]="feature.route" [routerLink]="feature.route">
+        <div
+          class="feature-card"
+          [class.feature-card--clickable]="feature.route"
+          [attr.role]="feature.route ? 'button' : null"
+          [attr.tabindex]="feature.route ? '0' : null"
+          (click)="onFeatureClick(feature.route)"
+          (keydown)="onFeatureKeydown($event, feature.route)"
+        >
           <div class="feature-card__icon">
             <i [class]="feature.icon"></i>
           </div>

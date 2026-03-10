@@ -127,13 +127,14 @@ export class DashboardComponent implements OnInit {
 
   get allocationChartOptions(): any {
     const useBottomLegend = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
+    const legendTextColor = this.getThemeColor('--p-text-color', '#e5e7eb');
 
     return {
       plugins: {
         legend: {
           position: useBottomLegend ? 'bottom' : 'right',
           labels: {
-            color: 'var(--p-text-color)',
+            color: legendTextColor,
             usePointStyle: true,
             boxWidth: 10,
             boxHeight: 10,
@@ -161,6 +162,12 @@ export class DashboardComponent implements OnInit {
         },
       },
     };
+  }
+
+  private getThemeColor(cssVarName: string, fallback: string): string {
+    if (typeof window === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(cssVarName).trim();
+    return value || fallback;
   }
 
   assetClassSeverity(cls: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {

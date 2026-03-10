@@ -55,9 +55,9 @@ func handleLogin(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Update last_login timestamp
+		// Update last_login and updated_at timestamps
 		now := time.Now().UTC()
-		_, err = db.Exec("UPDATE users SET last_login = ? WHERE id = ?", now, u.ID)
+		_, err = db.Exec("UPDATE users SET last_login = ?, updated_at = ? WHERE id = ?", now, now, u.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update login time"})
 			return

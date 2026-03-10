@@ -23,7 +23,7 @@ func registerUserRoutes(admin *gin.RouterGroup, db *sql.DB) {
 func handleListUsers(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rows, err := db.Query(
-			"SELECT id, username, full_name, role, active, created_at, last_login FROM users ORDER BY created_at DESC",
+			"SELECT id, username, full_name, role, active, created_at, updated_at, last_login FROM users ORDER BY created_at DESC",
 		)
 		if err != nil {
 			log.Printf("handleListUsers: query error: %v", err)
@@ -35,7 +35,7 @@ func handleListUsers(db *sql.DB) gin.HandlerFunc {
 		users := []gin.H{}
 		for rows.Next() {
 			var u models.User
-			err := rows.Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.LastLogin)
+			err := rows.Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt, &u.LastLogin)
 			if err != nil {
 				log.Printf("handleListUsers: scan error: %v", err)
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -48,6 +48,7 @@ func handleListUsers(db *sql.DB) gin.HandlerFunc {
 				"role":       u.Role,
 				"active":     u.Active,
 				"created_at": u.CreatedAt,
+				"updated_at": u.UpdatedAt,
 				"last_login": u.LastLogin,
 			})
 		}
@@ -99,8 +100,8 @@ func handleCreateUser(db *sql.DB) gin.HandlerFunc {
 		now := time.Now().UTC()
 
 		_, err = db.Exec(
-			"INSERT INTO users (id, username, full_name, password_hash, role, active, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)",
-			userID, req.Username, req.FullName, hash, req.Role, now,
+			"INSERT INTO users (id, username, full_name, password_hash, role, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)",
+			userID, req.Username, req.FullName, hash, req.Role, now, now,
 		)
 		if err != nil {
 			log.Printf("handleCreateUser: insert error: %v", err)
@@ -115,6 +116,7 @@ func handleCreateUser(db *sql.DB) gin.HandlerFunc {
 			"role":       req.Role,
 			"active":     true,
 			"created_at": now,
+			"updated_at": now,
 			"last_login": nil,
 		})
 	}
@@ -143,12 +145,12 @@ func handleUpdateUser(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Build update query dynamically
-		updates := "full_name = ?"
+		// Build update query dynamically — updated_at is always refreshed
+		updates := "full_name = ?, updated_at = CURRENT_TIMESTAMP"
 		args := []interface{}{req.FullName, userID}
 
 		if req.Role != "" {
-			updates = "full_name = ?, role = ?"
+			updates = "full_name = ?, role = ?, updated_at = CURRENT_TIMESTAMP"
 			args = []interface{}{req.FullName, req.Role, userID}
 		}
 
@@ -159,10 +161,10 @@ func handleUpdateUser(db *sql.DB) gin.HandlerFunc {
 				return
 			}
 			if req.Role != "" {
-				updates = "full_name = ?, role = ?, password_hash = ?"
+				updates = "full_name = ?, role = ?, password_hash = ?, updated_at = CURRENT_TIMESTAMP"
 				args = []interface{}{req.FullName, req.Role, hash, userID}
 			} else {
-				updates = "full_name = ?, password_hash = ?"
+				updates = "full_name = ?, password_hash = ?, updated_at = CURRENT_TIMESTAMP"
 				args = []interface{}{req.FullName, hash, userID}
 			}
 		}
@@ -182,9 +184,9 @@ func handleUpdateUser(db *sql.DB) gin.HandlerFunc {
 		// Fetch updated user
 		var u models.User
 		err = db.QueryRow(
-			"SELECT id, username, full_name, role, active, created_at, last_login FROM users WHERE id = ?",
+			"SELECT id, username, full_name, role, active, created_at, updated_at, last_login FROM users WHERE id = ?",
 			userID,
-		).Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.LastLogin)
+		).Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt, &u.LastLogin)
 		if err != nil {
 			log.Printf("handleUpdateUser: select error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -198,6 +200,7 @@ func handleUpdateUser(db *sql.DB) gin.HandlerFunc {
 			"role":       u.Role,
 			"active":     u.Active,
 			"created_at": u.CreatedAt,
+			"updated_at": u.UpdatedAt,
 			"last_login": u.LastLogin,
 		})
 	}
@@ -269,7 +272,7 @@ func handleToggleUserStatus(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		result, err := db.Exec("UPDATE users SET active = ? WHERE id = ?", *req.Active, userID)
+		result, err := db.Exec("UPDATE users SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", *req.Active, userID)
 		if err != nil {
 			log.Printf("handleToggleUserStatus: update error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -283,9 +286,9 @@ func handleToggleUserStatus(db *sql.DB) gin.HandlerFunc {
 		// Fetch updated user
 		var u models.User
 		err = db.QueryRow(
-			"SELECT id, username, full_name, role, active, created_at, last_login FROM users WHERE id = ?",
+			"SELECT id, username, full_name, role, active, created_at, updated_at, last_login FROM users WHERE id = ?",
 			userID,
-		).Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.LastLogin)
+		).Scan(&u.ID, &u.Username, &u.FullName, &u.Role, &u.Active, &u.CreatedAt, &u.UpdatedAt, &u.LastLogin)
 		if err != nil {
 			log.Printf("handleToggleUserStatus: select error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -299,6 +302,7 @@ func handleToggleUserStatus(db *sql.DB) gin.HandlerFunc {
 			"role":       u.Role,
 			"active":     u.Active,
 			"created_at": u.CreatedAt,
+			"updated_at": u.UpdatedAt,
 			"last_login": u.LastLogin,
 		})
 	}

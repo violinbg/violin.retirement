@@ -59,8 +59,8 @@ func handlePutFireSettings(db *sql.DB) gin.HandlerFunc {
 		_, err := db.Exec(`
 			INSERT INTO fire_settings
 			  (user_id, current_age, current_portfolio, annual_income, annual_expenses,
-			   expected_return, withdrawal_rate, retirement_spending, updated_at)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+			   expected_return, withdrawal_rate, retirement_spending, created_at, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 			ON CONFLICT(user_id) DO UPDATE SET
 			  current_age         = excluded.current_age,
 			  current_portfolio   = excluded.current_portfolio,

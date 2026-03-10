@@ -81,17 +81,18 @@ func handleSetup(db *sql.DB) gin.HandlerFunc {
 		}
 		defer tx.Rollback() //nolint:errcheck
 
+		now := time.Now().UTC()
 		if _, err := tx.Exec(
-			"INSERT INTO users (id, username, full_name, password_hash, role, created_at) VALUES (?, ?, ?, ?, 'admin', ?)",
-			userID, req.Username, req.FullName, hash, time.Now().UTC(),
+			"INSERT INTO users (id, username, full_name, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, 'admin', ?, ?)",
+			userID, req.Username, req.FullName, hash, now, now,
 		); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
 		if _, err := tx.Exec(
-			"INSERT INTO app_config (key, value) VALUES ('jwt_secret', ?)",
-			secret,
+			"INSERT INTO app_config (key, value, created_at, updated_at) VALUES ('jwt_secret', ?, ?, ?)",
+			secret, now, now,
 		); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

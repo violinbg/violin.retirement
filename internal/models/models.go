@@ -12,6 +12,7 @@ type User struct {
 	Role         string
 	Active       bool
 	CreatedAt    time.Time
+	UpdatedAt    time.Time
 	LastLogin    *time.Time
 }
 

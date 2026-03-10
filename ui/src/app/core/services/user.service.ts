@@ -9,6 +9,7 @@ export interface User {
   role: string;
   active: boolean;
   created_at: string;
+  updated_at: string;
   last_login: string | null;
 }
 

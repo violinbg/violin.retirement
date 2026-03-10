@@ -29,7 +29,7 @@
       } @else {
         <p-button label="Get Started" icon="pi pi-arrow-right" iconPos="left" size="large" (onClick)="showLoginDialog.set(true)" />
       }
-      <p-button label="Learn More" icon="pi pi-info-circle" severity="secondary" [outlined]="true" size="large" />
+      <p-button label="Learn More" icon="pi pi-info-circle" severity="secondary" [outlined]="true" size="large" (onClick)="showLearnMore()" />
     </div>
   </section>
 
@@ -73,4 +73,8 @@
 
 @if (showLoginDialog()) {
   <vr-login-dialog (closed)="showLoginDialog.set(false)" />
+}
+
+@if (showAboutDialog()) {
+  <vr-about-dialog (closed)="showAboutDialog.set(false)" />
 }

@@ -1,0 +1,57 @@
+<p-dialog
+  header="About Violin Retirement"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '550px' }"
+  (onHide)="close()"
+>
+  <div class="about-content">
+    <div class="about-section">
+      <h3><i class="pi pi-info-circle"></i> What is Violin Retirement?</h3>
+      <p>
+        Violin Retirement is a comprehensive financial planning tool designed specifically for
+        individuals pursuing Financial Independence and Early Retirement (FIRE). Our platform
+        combines elegant portfolio tracking with powerful modeling tools to help you chart
+        your course to financial freedom.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3><i class="pi pi-star"></i> Key Features</h3>
+      <ul>
+        <li><strong>Portfolio Tracking:</strong> Monitor your investments across multiple accounts and asset classes in real-time.</li>
+        <li><strong>FIRE Calculator:</strong> Project different retirement scenarios and visualize your path to financial independence.</li>
+        <li><strong>Goal Setting:</strong> Set savings milestones and track your progress toward early retirement.</li>
+        <li><strong>Withdrawal Planning:</strong> Model safe withdrawal rates using proven strategies like the 4% rule.</li>
+      </ul>
+    </div>
+
+    <div class="about-section">
+      <h3><i class="pi pi-shield"></i> Privacy & Security</h3>
+      <p>
+        Your financial data is yours alone. We use industry-standard encryption and secure
+        authentication to protect your information. Your portfolio data stays private and secure.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3><i class="pi pi-users"></i> Who is this for?</h3>
+      <p>
+        Whether you're just starting your FIRE journey or years into accumulation, Violin
+        Retirement provides the tools and insights you need to stay on track. Perfect for
+        DIY investors who want deep control over their financial planning.
+      </p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Get Started"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      (onClick)="close()"
+    />
+  </ng-template>
+</p-dialog>

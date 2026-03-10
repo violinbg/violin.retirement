@@ -5,13 +5,14 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../core/services/auth.service';
 import { LoginDialogComponent } from '../auth/login-dialog/login-dialog.component';
+import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 
 @Component({
   selector: 'vr-home',
   standalone: true,
-  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, AppHeaderComponent],
+  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, AboutDialogComponent, AppHeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -20,6 +21,7 @@ export class HomeComponent {
   private readonly router = inject(Router);
 
   showLoginDialog = signal(false);
+  showAboutDialog = signal(false);
 
   readonly features = [
     {
@@ -110,6 +112,10 @@ export class HomeComponent {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  showLearnMore(): void {
+    this.showAboutDialog.set(true);
   }
 
   onFeatureClick(route: string | null): void {

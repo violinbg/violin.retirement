@@ -10,7 +10,9 @@ type User struct {
 	FullName     string
 	PasswordHash string
 	Role         string
+	Active       bool
 	CreatedAt    time.Time
+	LastLogin    *time.Time
 }
 
 // AppConfig represents a key/value configuration entry.
@@ -40,4 +42,3 @@ type PortfolioAccountHistory struct {
 	Note       *string
 	RecordedAt time.Time
 }
-

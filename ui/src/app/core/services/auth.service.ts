@@ -62,6 +62,11 @@ export class AuthService {
     this.currentUser.set(null);
   }
 
+  isAdmin(): boolean {
+    const user = this.currentUser();
+    return user?.role === 'admin' || false;
+  }
+
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }

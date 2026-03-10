@@ -1,0 +1,270 @@
+<vr-app-header
+  title="Violin Retirement"
+  logoIcon="pi pi-chart-line"
+  [username]="auth.currentUser()?.full_name ?? null"
+  [leftAction]="headerLeftAction"
+  [actions]="headerActions"
+  (actionClick)="onHeaderAction($event)"
+></vr-app-header>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="users">
+  <div class="users__body">
+    <div class="header-bar">
+      <h1 class="header-bar__title">User Management</h1>
+      <p-button
+        label="Create New User"
+        icon="pi pi-plus"
+        size="small"
+        (onClick)="openCreateDialog()"
+      />
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner loading-state__icon"></i>
+        <p>Loading users…</p>
+      </div>
+    } @else {
+      <p-card styleClass="users__card">
+        <p-table
+      [value]="users()"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      responsiveLayout="scroll"
+      [globalFilterFields]="['username', 'full_name', 'role']"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Username</th>
+          <th>Full Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Last Login</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.username }}</td>
+          <td>{{ user.full_name }}</td>
+          <td>
+            <p-tag
+              [value]="getRoleTag(user.role).label"
+              [severity]="getRoleTag(user.role).severity"
+            ></p-tag>
+          </td>
+          <td>
+            <p-tag
+              [value]="getStatusTag(user.active).label"
+              [severity]="getStatusTag(user.active).severity"
+            ></p-tag>
+          </td>
+          <td>{{ formatDate(user.created_at) }}</td>
+          <td>{{ formatDate(user.last_login) }}</td>
+          <td>
+            <div class="row-actions">
+              <p-button
+                icon="pi pi-pencil"
+                [text]="true"
+                size="small"
+                severity="secondary"
+                pTooltip="Edit"
+                tooltipPosition="top"
+                (onClick)="openEditDialog(user)"
+              />
+              <p-button
+                [icon]="user.active ? 'pi pi-ban' : 'pi pi-check'"
+                [text]="true"
+                size="small"
+                [severity]="user.active ? 'warn' : 'success'"
+                [pTooltip]="user.active ? 'Deactivate' : 'Reactivate'"
+                tooltipPosition="top"
+                (onClick)="confirmToggleStatus(user)"
+                [disabled]="user.id === auth.currentUser()?.id"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [text]="true"
+                size="small"
+                severity="danger"
+                pTooltip="Delete"
+                tooltipPosition="top"
+                (onClick)="confirmDelete(user)"
+                [disabled]="user.id === auth.currentUser()?.id"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+      </p-card>
+    }
+  </div>
+</div>
+
+<!-- Create User Dialog -->
+<p-dialog
+  [visible]="showCreateDialog()"
+  (visibleChange)="showCreateDialog.set($event)"
+  header="Create New User"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '400px' }"
+  [closable]="true"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input
+        pInputText
+        id="username"
+        [ngModel]="createForm.get('username')?.value"
+        (ngModelChange)="createForm.get('username')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      <small class="error" *ngIf="createForm.get('username')?.invalid">
+        Username is required (min 3 characters)
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="fullName">Full Name</label>
+      <input
+        pInputText
+        id="fullName"
+        [ngModel]="createForm.get('full_name')?.value"
+        (ngModelChange)="createForm.get('full_name')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      <small class="error" *ngIf="createForm.get('full_name')?.invalid">
+        Full Name is required
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input
+        pInputText
+        id="password"
+        [ngModel]="createForm.get('password')?.value"
+        (ngModelChange)="createForm.get('password')?.setValue($event)"
+        class="w-full"
+        type="password"
+      />
+      <small class="error" *ngIf="createForm.get('password')?.invalid">
+        Password is required (min 8 characters)
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="role">Role</label>
+      <p-select
+        id="role"
+        [options]="roles"
+        [ngModel]="createForm.get('role')?.value"
+        (ngModelChange)="createForm.get('role')?.setValue($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      ></p-select>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (onClick)="showCreateDialog.set(false)"
+    />
+    <p-button
+      label="Create"
+      icon="pi pi-check"
+      [disabled]="!createForm.valid"
+      (onClick)="createUser()"
+    />
+  </ng-template>
+</p-dialog>
+
+<!-- Edit User Dialog -->
+<p-dialog
+  [visible]="showEditDialog()"
+  (visibleChange)="showEditDialog.set($event)"
+  header="Edit User"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '400px' }"
+  [closable]="true"
+>
+  <div class="dialog-form" *ngIf="editingUser()">
+    <p class="user-info">Editing: <strong>{{ editingUser()?.username }}</strong></p>
+
+    <div class="form-field">
+      <label for="editFullName">Full Name</label>
+      <input
+        pInputText
+        id="editFullName"
+        [ngModel]="editForm.get('full_name')?.value"
+        (ngModelChange)="editForm.get('full_name')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      <small class="error" *ngIf="editForm.get('full_name')?.invalid">
+        Full Name is required
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="editRole">Role</label>
+      <p-select
+        id="editRole"
+        [options]="roles"
+        [ngModel]="editForm.get('role')?.value"
+        (ngModelChange)="editForm.get('role')?.setValue($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+        [disabled]="editingUser()?.id === auth.currentUser()?.id"
+      ></p-select>
+      <small *ngIf="editingUser()?.id === auth.currentUser()?.id" class="text-muted">
+        You cannot change your own role
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="editPassword">Password (leave blank to keep current)</label>
+      <input
+        pInputText
+        id="editPassword"
+        [ngModel]="editForm.get('password')?.value"
+        (ngModelChange)="editForm.get('password')?.setValue($event)"
+        class="w-full"
+        type="password"
+        placeholder="Leave blank to keep current password"
+      />
+      <small class="error" *ngIf="editForm.get('password')?.invalid">
+        Password must be at least 8 characters
+      </small>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (onClick)="showEditDialog.set(false)"
+    />
+    <p-button
+      label="Update"
+      icon="pi pi-check"
+      [disabled]="!editForm.valid"
+      (onClick)="updateUser()"
+    />
+  </ng-template>
+</p-dialog>

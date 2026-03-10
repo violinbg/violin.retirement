@@ -3,6 +3,7 @@ package server
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/violinbg/violin.retirement/internal/auth"
@@ -36,15 +37,29 @@ func handleLogin(db *sql.DB) gin.HandlerFunc {
 
 		var u models.User
 		err := db.QueryRow(
-			"SELECT id, username, full_name, password_hash, role FROM users WHERE username = ?",
+			"SELECT id, username, full_name, password_hash, role, active FROM users WHERE username = ?",
 			req.Username,
-		).Scan(&u.ID, &u.Username, &u.FullName, &u.PasswordHash, &u.Role)
+		).Scan(&u.ID, &u.Username, &u.FullName, &u.PasswordHash, &u.Role, &u.Active)
 		if err == sql.ErrNoRows || !auth.Check(u.PasswordHash, req.Password) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Check if user is active — return generic error to avoid revealing account existence
+		if !u.Active {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+			return
+		}
+
+		// Update last_login timestamp
+		now := time.Now().UTC()
+		_, err = db.Exec("UPDATE users SET last_login = ? WHERE id = ?", now, u.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update login time"})
 			return
 		}
 

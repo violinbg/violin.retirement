@@ -8,10 +8,10 @@ import (
 	"github.com/violinbg/violin.retirement/internal/auth"
 )
 
-const contextKeyUserID   = "userID"
+const contextKeyUserID = "userID"
 const contextKeyUsername = "username"
 const contextKeyFullName = "fullName"
-const contextKeyRole     = "role"
+const contextKeyRole = "role"
 
 // AuthRequired validates the Bearer JWT and injects user claims into the context.
 // Responds with 401 if the token is missing or invalid.
@@ -32,6 +32,20 @@ func AuthRequired(jwtSecret func() string) gin.HandlerFunc {
 		c.Set(contextKeyUsername, claims.Username)
 		c.Set(contextKeyFullName, claims.FullName)
 		c.Set(contextKeyRole, claims.Role)
+		c.Next()
+	}
+}
+
+// AdminRequired validates that the authenticated user has an admin role.
+// Responds with 403 Forbidden if the user is not an admin.
+// Must be used after AuthRequired middleware.
+func AdminRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role := c.GetString(contextKeyRole)
+		if role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "admin access required"})
+			return
+		}
 		c.Next()
 	}
 }

@@ -126,11 +126,19 @@ export class DashboardComponent implements OnInit {
   }
 
   get allocationChartOptions(): any {
+    const useBottomLegend = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
+
     return {
       plugins: {
         legend: {
-          position: 'right',
-          labels: { color: 'var(--p-text-color)', usePointStyle: true, padding: 16 },
+          position: useBottomLegend ? 'bottom' : 'right',
+          labels: {
+            color: 'var(--p-text-color)',
+            usePointStyle: true,
+            boxWidth: 10,
+            boxHeight: 10,
+            padding: useBottomLegend ? 12 : 16,
+          },
         },
         tooltip: {
           callbacks: {
@@ -144,6 +152,14 @@ export class DashboardComponent implements OnInit {
       },
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 8,
+          bottom: useBottomLegend ? 4 : 8,
+          left: 8,
+          right: 8,
+        },
+      },
     };
   }
 

@@ -27,7 +27,7 @@ export class HomeComponent {
       icon: 'pi pi-chart-line',
       title: 'Portfolio Tracking',
       description: 'Monitor your investment portfolio across accounts and asset classes in real time.',
-      route: null as string | null,
+      route: '/portfolio' as string | null,
     },
     {
       icon: 'pi pi-calculator',

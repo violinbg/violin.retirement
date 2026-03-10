@@ -8,12 +8,195 @@
   />
 
   <main class="dashboard__content">
-    <p-card styleClass="dashboard__welcome-card">
-      <div class="welcome">
-        <i class="pi pi-sun welcome__icon"></i>
-        <h1 class="welcome__title">Welcome back, {{ auth.currentUser()?.full_name }}!</h1>
-        <p class="welcome__subtitle">Your retirement dashboard is coming soon. Stay tuned.</p>
+
+    <!-- Greeting -->
+    <div class="greeting">
+      <h1 class="greeting__title">Welcome back, {{ auth.currentUser()?.full_name }}!</h1>
+      <p class="greeting__subtitle">Here's an overview of your retirement progress.</p>
+    </div>
+
+    @if (loading()) {
+      <div class="dash-loading">
+        <i class="pi pi-spin pi-spinner"></i> Loading your dashboard…
       </div>
-    </p-card>
+    } @else {
+
+      <!-- Top row: portfolio summary + FIRE progress -->
+      <div class="dash-row dash-row--top">
+
+        <!-- Portfolio Summary -->
+        <p-card styleClass="dash-card dash-card--summary">
+          <div class="card-header">
+            <span class="card-header__title">
+              <i class="pi pi-chart-line"></i> Portfolio Value
+            </span>
+            <p-button
+              label="Manage"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [text]="true"
+              size="small"
+              (onClick)="navigateTo('/portfolio')"
+            />
+          </div>
+
+          @if (accounts().length > 0) {
+            <div class="summary-value">{{ formatCurrency(totalPortfolioValue) }}</div>
+            <div class="summary-meta">
+              <span>{{ accounts().length }} account{{ accounts().length !== 1 ? 's' : '' }}</span>
+            </div>
+          } @else {
+            <div class="empty-prompt">
+              <p>No accounts tracked yet.</p>
+              <p-button label="Add Account" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
+            </div>
+          }
+        </p-card>
+
+        <!-- FIRE Progress -->
+        <p-card styleClass="dash-card dash-card--fire">
+          <div class="card-header">
+            <span class="card-header__title">
+              <i class="pi pi-bolt"></i> FIRE Progress
+            </span>
+            <p-button
+              label="Calculator"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [text]="true"
+              size="small"
+              (onClick)="navigateTo('/calculator')"
+            />
+          </div>
+
+          @if (fireSettings()) {
+            <div class="fire-progress">
+              <div class="fire-progress__numbers">
+                <span class="fire-progress__current">{{ formatCurrency(totalPortfolioValue) }}</span>
+                <span class="fire-progress__separator">/</span>
+                <span class="fire-progress__target">{{ formatCurrency(fireNumber) }}</span>
+              </div>
+              <p-progressbar
+                [value]="fireProgressPercent"
+                [showValue]="false"
+                styleClass="fire-progress__bar"
+              />
+              <div class="fire-progress__pct">{{ fireProgressPercent }}% of FIRE number</div>
+            </div>
+          } @else {
+            <div class="empty-prompt">
+              <p>Set up your FIRE calculator to track progress.</p>
+              <p-button label="Open Calculator" icon="pi pi-calculator" size="small" (onClick)="navigateTo('/calculator')" />
+            </div>
+          }
+        </p-card>
+
+      </div>
+
+      <!-- Middle row: allocation chart + account list -->
+      <div class="dash-row dash-row--mid">
+
+        <!-- Asset Allocation Chart -->
+        <p-card styleClass="dash-card dash-card--allocation">
+          <div class="card-header">
+            <span class="card-header__title">
+              <i class="pi pi-chart-pie"></i> Asset Allocation
+            </span>
+          </div>
+
+          @if (allocationChartData) {
+            <div class="chart-container">
+              <p-chart
+                type="doughnut"
+                [data]="allocationChartData"
+                [options]="allocationChartOptions"
+              />
+            </div>
+          } @else {
+            <div class="empty-prompt empty-prompt--chart">
+              <i class="pi pi-chart-pie empty-icon"></i>
+              <p>Add accounts to see allocation breakdown.</p>
+            </div>
+          }
+        </p-card>
+
+        <!-- Account List -->
+        <p-card styleClass="dash-card dash-card--accounts">
+          <div class="card-header">
+            <span class="card-header__title">
+              <i class="pi pi-list"></i> Accounts
+            </span>
+            <p-button
+              label="View All"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [text]="true"
+              size="small"
+              (onClick)="navigateTo('/portfolio')"
+            />
+          </div>
+
+          @if (accounts().length > 0) {
+            <p-table [value]="accounts()" styleClass="p-datatable-sm accounts-table">
+              <ng-template pTemplate="body" let-account>
+                <tr>
+                  <td>
+                    <div class="account-row">
+                      <span class="account-row__name">{{ account.name }}</span>
+                      <p-tag
+                        [value]="account.asset_class"
+                        [severity]="assetClassSeverity(account.asset_class)"
+                        styleClass="account-row__tag"
+                      />
+                    </div>
+                    <span class="account-row__type">{{ account.account_type }}</span>
+                  </td>
+                  <td class="text-right">
+                    <span class="account-row__value">{{ formatCurrency(account.current_value) }}</span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr class="accounts-total">
+                  <td><strong>Total</strong></td>
+                  <td class="text-right"><strong>{{ formatCurrency(totalPortfolioValue) }}</strong></td>
+                </tr>
+              </ng-template>
+            </p-table>
+          } @else {
+            <div class="empty-prompt">
+              <p>No accounts yet.</p>
+              <p-button label="Add Account" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
+            </div>
+          }
+        </p-card>
+
+      </div>
+
+      <!-- Bottom row: quick links -->
+      <div class="dash-row dash-row--links">
+        <div class="quick-link" (click)="navigateTo('/portfolio')" role="button" tabindex="0"
+          (keydown.enter)="navigateTo('/portfolio')" (keydown.space)="navigateTo('/portfolio')">
+          <i class="pi pi-chart-line quick-link__icon"></i>
+          <div>
+            <div class="quick-link__title">Portfolio Tracking</div>
+            <div class="quick-link__desc">Manage accounts & view history</div>
+          </div>
+          <i class="pi pi-arrow-right quick-link__arrow"></i>
+        </div>
+
+        <div class="quick-link" (click)="navigateTo('/calculator')" role="button" tabindex="0"
+          (keydown.enter)="navigateTo('/calculator')" (keydown.space)="navigateTo('/calculator')">
+          <i class="pi pi-calculator quick-link__icon"></i>
+          <div>
+            <div class="quick-link__title">FIRE Calculator</div>
+            <div class="quick-link__desc">Model your path to financial independence</div>
+          </div>
+          <i class="pi pi-arrow-right quick-link__arrow"></i>
+        </div>
+      </div>
+
+    }
+
   </main>
 </div>

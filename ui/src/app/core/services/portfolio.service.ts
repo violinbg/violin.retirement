@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from './auth.service';
 
 export interface PortfolioAccount {
   id: string;
@@ -39,33 +38,28 @@ export const ASSET_CLASSES = ['Stocks', 'Bonds', 'Cash', 'Real Estate', 'Crypto'
 @Injectable({ providedIn: 'root' })
 export class PortfolioService {
   private readonly http = inject(HttpClient);
-  private readonly auth = inject(AuthService);
-
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken() ?? ''}` });
-  }
 
   getAccounts(): Observable<PortfolioAccount[]> {
     return this.http
-      .get<PortfolioAccount[]>('/api/v1/portfolio/accounts', { headers: this.headers })
+      .get<PortfolioAccount[]>('/api/v1/portfolio/accounts')
       .pipe(catchError(() => of([])));
   }
 
   createAccount(req: CreateAccountRequest): Observable<PortfolioAccount | null> {
     return this.http
-      .post<PortfolioAccount>('/api/v1/portfolio/accounts', req, { headers: this.headers })
+      .post<PortfolioAccount>('/api/v1/portfolio/accounts', req)
       .pipe(catchError(() => of(null)));
   }
 
   updateAccount(id: string, req: UpdateAccountRequest): Observable<PortfolioAccount | null> {
     return this.http
-      .put<PortfolioAccount>(`/api/v1/portfolio/accounts/${id}`, req, { headers: this.headers })
+      .put<PortfolioAccount>(`/api/v1/portfolio/accounts/${id}`, req)
       .pipe(catchError(() => of(null)));
   }
 
   deleteAccount(id: string): Observable<boolean> {
     return this.http
-      .delete(`/api/v1/portfolio/accounts/${id}`, { headers: this.headers })
+      .delete(`/api/v1/portfolio/accounts/${id}`)
       .pipe(
         map(() => true),
         catchError(() => of(false)),
@@ -74,7 +68,7 @@ export class PortfolioService {
 
   getAccountHistory(id: string): Observable<PortfolioAccountHistory[]> {
     return this.http
-      .get<PortfolioAccountHistory[]>(`/api/v1/portfolio/accounts/${id}/history`, { headers: this.headers })
+      .get<PortfolioAccountHistory[]>(`/api/v1/portfolio/accounts/${id}/history`)
       .pipe(catchError(() => of([])));
   }
 }

@@ -31,9 +31,7 @@ export class AuthService {
     if (!token) return;
 
     const user = await firstValueFrom(
-      this.http.get<CurrentUser>('/api/v1/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      this.http.get<CurrentUser>('/api/v1/auth/me')
     ).catch(() => null);
 
     if (user) {

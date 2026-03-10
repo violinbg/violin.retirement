@@ -1,0 +1,107 @@
+package server
+
+import (
+	"crypto/rand"
+	"database/sql"
+	"encoding/hex"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/violinbg/violin.retirement/internal/auth"
+)
+
+func registerSetupRoutes(api *gin.RouterGroup, db *sql.DB) {
+	api.GET("/setup/status", handleSetupStatus(db))
+	api.POST("/setup", handleSetup(db))
+}
+
+// isInitialized reports whether at least one user exists.
+func isInitialized(db *sql.DB) (bool, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	return count > 0, err
+}
+
+func handleSetupStatus(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ok, err := isInitialized(db)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"initialized": ok})
+	}
+}
+
+func handleSetup(db *sql.DB) gin.HandlerFunc {
+	type request struct {
+		Username string `json:"username" binding:"required,min=3"`
+		FullName string `json:"full_name" binding:"required"`
+		Password string `json:"password" binding:"required,min=8"`
+	}
+
+	return func(c *gin.Context) {
+		initialized, err := isInitialized(db)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if initialized {
+			c.JSON(http.StatusConflict, gin.H{"error": "app already initialized"})
+			return
+		}
+
+		var req request
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		hash, err := auth.Hash(req.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
+			return
+		}
+
+		secretBytes := make([]byte, 32)
+		if _, err := rand.Read(secretBytes); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate secret"})
+			return
+		}
+		secret := hex.EncodeToString(secretBytes)
+
+		userID := uuid.New().String()
+
+		tx, err := db.Begin()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer tx.Rollback() //nolint:errcheck
+
+		if _, err := tx.Exec(
+			"INSERT INTO users (id, username, full_name, password_hash, role, created_at) VALUES (?, ?, ?, ?, 'admin', ?)",
+			userID, req.Username, req.FullName, hash, time.Now().UTC(),
+		); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if _, err := tx.Exec(
+			"INSERT INTO app_config (key, value) VALUES ('jwt_secret', ?)",
+			secret,
+		); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if err := tx.Commit(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"message": "setup complete"})
+	}
+}

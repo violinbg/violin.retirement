@@ -1,16 +1,15 @@
-<vr-app-header
-  title="Violin Retirement"
-  logoIcon="pi pi-chart-line"
-  [username]="auth.currentUser()?.full_name ?? null"
-  [leftAction]="headerLeftAction"
-  [actions]="headerActions"
-  (actionClick)="onHeaderAction($event)"
-></vr-app-header>
-
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
 <div class="users">
+  <vr-app-header
+    title="Violin Retirement"
+    logoIcon="pi pi-chart-line"
+    [username]="auth.currentUser()?.full_name ?? null"
+    [leftAction]="headerLeftAction"
+    [actions]="headerActions"
+    (actionClick)="onHeaderAction($event)"
+  />
   <div class="users__body">
     <div class="header-bar">
       <h1 class="header-bar__title">User Management</h1>

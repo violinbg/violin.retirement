@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const tokenTTL = 24 * time.Hour
+const tokenTTL = 15 * time.Minute
 
 // Claims are the JWT payload fields.
 type Claims struct {

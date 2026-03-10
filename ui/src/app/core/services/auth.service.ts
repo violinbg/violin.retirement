@@ -23,6 +23,7 @@ export interface RegisterRequest {
 }
 
 const TOKEN_KEY = 'vr_token';
+const REFRESH_TOKEN_KEY = 'vr_refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -32,6 +33,8 @@ export class AuthService {
   readonly isLoggedIn = signal(false);
   readonly currentUser = signal<CurrentUser | null>(null);
   readonly registrationEnabled = signal(false);
+
+  private refreshPromise: Promise<string> | null = null;
 
   /** Called once at app boot via APP_INITIALIZER. */
   async init(): Promise<void> {
@@ -54,19 +57,25 @@ export class AuthService {
       this.currentUser.set(user);
     } else {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
+  }
+
+  private storeTokens(accessToken: string, refreshToken: string, user: CurrentUser): void {
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    this.isLoggedIn.set(true);
+    this.currentUser.set(user);
   }
 
   async login(username: string, password: string): Promise<void> {
     const res = await firstValueFrom(
-      this.http.post<{ token: string; user: CurrentUser }>('/api/v1/auth/login', {
+      this.http.post<{ access_token: string; refresh_token: string; user: CurrentUser }>('/api/v1/auth/login', {
         username,
         password
       })
     );
-    localStorage.setItem(TOKEN_KEY, res.token);
-    this.isLoggedIn.set(true);
-    this.currentUser.set(res.user);
+    this.storeTokens(res.access_token, res.refresh_token, res.user);
   }
 
   setRegistrationEnabled(value: boolean): void {
@@ -79,17 +88,60 @@ export class AuthService {
 
   async register(req: RegisterRequest): Promise<void> {
     const res = await firstValueFrom(
-      this.http.post<{ token: string; user: CurrentUser }>('/api/v1/auth/register', req)
+      this.http.post<{ access_token: string; refresh_token: string; user: CurrentUser }>('/api/v1/auth/register', req)
     );
-    localStorage.setItem(TOKEN_KEY, res.token);
-    this.isLoggedIn.set(true);
-    this.currentUser.set(res.user);
+    this.storeTokens(res.access_token, res.refresh_token, res.user);
+  }
+
+  /**
+   * Silently refreshes the access token using the stored refresh token.
+   * Concurrent callers share the same in-flight request (deduplication).
+   * Returns the new access token, or throws if refresh fails.
+   */
+  refreshToken(): Promise<string> {
+    if (this.refreshPromise) return this.refreshPromise;
+
+    this.refreshPromise = this._doRefresh().finally(() => {
+      this.refreshPromise = null;
+    });
+
+    return this.refreshPromise;
+  }
+
+  private async _doRefresh(): Promise<string> {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!refreshToken) throw new Error('No refresh token available');
+
+    const res = await firstValueFrom(
+      this.http.post<{ access_token: string; refresh_token: string }>('/api/v1/auth/refresh', {
+        refresh_token: refreshToken
+      })
+    );
+
+    // Guard: logout() may have been called while the request was in-flight.
+    // If the session was cleared, discard the new tokens instead of restoring them.
+    if (!this.isLoggedIn()) {
+      throw new Error('Session ended during refresh');
+    }
+
+    localStorage.setItem(TOKEN_KEY, res.access_token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, res.refresh_token);
+    return res.access_token;
   }
 
   logout(): void {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    // Null out any in-flight refresh so its .finally() cleanup is a no-op and
+    // the isLoggedIn() guard in _doRefresh discards the response.
+    this.refreshPromise = null;
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     this.isLoggedIn.set(false);
     this.currentUser.set(null);
+    if (refreshToken) {
+      // Best-effort revocation — don't await or block on failure.
+      this.http.post('/api/v1/auth/logout', { refresh_token: refreshToken }).subscribe({ error: () => {} });
+    }
   }
 
   isAdmin(): boolean {

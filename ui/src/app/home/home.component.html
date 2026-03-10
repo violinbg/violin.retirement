@@ -39,6 +39,7 @@
         <div
           class="feature-card"
           [class.feature-card--clickable]="feature.route"
+          [class.feature-card--coming-soon]="feature.comingSoon"
           [attr.role]="feature.route ? 'button' : null"
           [attr.tabindex]="feature.route ? '0' : null"
           (click)="onFeatureClick(feature.route)"
@@ -51,6 +52,11 @@
           <p class="feature-card__description">{{ feature.description }}</p>
           @if (feature.route) {
             <span class="feature-card__cta">Try it <i class="pi pi-arrow-right"></i></span>
+          }
+          @if (feature.comingSoon) {
+            <span class="feature-card__badge">
+              <p-tag value="Coming Soon" severity="secondary" />
+            </span>
           }
         </div>
       }

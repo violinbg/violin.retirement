@@ -27,24 +27,28 @@ export class HomeComponent {
       title: 'Portfolio Tracking',
       description: 'Monitor your investment portfolio across accounts and asset classes in real time.',
       route: '/portfolio' as string | null,
+      comingSoon: false,
     },
     {
       icon: 'pi pi-calculator',
       title: 'FIRE Calculator',
       description: 'Project your path to financial independence with dynamic retirement calculators.',
       route: '/calculator',
+      comingSoon: false,
     },
     {
       icon: 'pi pi-wallet',
       title: 'Savings Goals',
       description: 'Set and track savings milestones on your journey to early retirement.',
       route: null as string | null,
+      comingSoon: true,
     },
     {
       icon: 'pi pi-shield',
       title: 'Safe Withdrawal',
       description: 'Model sustainable withdrawal rates and stress-test your retirement plan.',
       route: null as string | null,
+      comingSoon: true,
     }
   ];
 

@@ -13,7 +13,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import {
   PortfolioService,
@@ -43,9 +44,10 @@ import { AppHeaderAction } from '../shared/components/app-header/app-header.mode
     ToastModule,
     TagModule,
     TooltipModule,
+    ConfirmDialogModule,
     AppHeaderComponent,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './portfolio.component.html',
   styleUrl: './portfolio.component.scss',
 })
@@ -54,6 +56,7 @@ export class PortfolioComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   accounts = signal<PortfolioAccount[]>([]);
   loading = signal(true);
@@ -182,24 +185,35 @@ export class PortfolioComponent implements OnInit {
     }
   }
 
-  async deleteAccount(account: PortfolioAccount): Promise<void> {
-    const ok = await firstValueFrom(this.portfolioSvc.deleteAccount(account.id));
-    if (ok) {
-      await this.loadAccounts();
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Account Removed',
-        detail: `${account.name} has been deleted.`,
-        life: 3000,
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to delete account.',
-        life: 4000,
-      });
-    }
+  deleteAccount(account: PortfolioAccount): void {
+    this.confirmationService.confirm({
+      header: 'Delete Account',
+      message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+      accept: async () => {
+        const ok = await firstValueFrom(this.portfolioSvc.deleteAccount(account.id));
+        if (ok) {
+          await this.loadAccounts();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Account Removed',
+            detail: `${account.name} has been deleted.`,
+            life: 3000,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete account.',
+            life: 4000,
+          });
+        }
+      },
+    });
   }
 
   async openHistory(account: PortfolioAccount): Promise<void> {

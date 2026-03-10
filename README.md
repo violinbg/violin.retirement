@@ -64,12 +64,18 @@ Linux/macOS:
 
 ```bash
 mkdir -p ./data
-docker run --rm \
+ls -lnd data
+echo "Look at the above line and enter the uid of the folder? (1000,1001...):"
+read uid
+docker run -it \
+	--memory="256m" --memory-reservation="128m" --name retire \
+	--user $uid:$uid \
 	-p 8080:8080 \
 	-e PORT=8080 \
 	-e DB_PATH=/data/violin.retirement.db \
 	-v "$(pwd)/data:/data" \
-	violin-retirement:latest
+	-d violin-retirement:latest
+docker update --restart unless-stopped retire
 ```
 
 Windows PowerShell:

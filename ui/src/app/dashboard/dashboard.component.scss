@@ -216,7 +216,19 @@
   text-align: right !important;
 }
 
+::ng-deep .dash-card--accounts .p-card-body,
+::ng-deep .dash-card--accounts .p-card-content {
+  height: 100%;
+}
+
+::ng-deep .dash-card--accounts .p-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
 .accounts-table {
+  flex: 1;
+
   .p-datatable-tbody > tr > td {
     padding: 0.5rem 0.25rem;
     border: none;
@@ -252,9 +264,13 @@
   white-space: nowrap;
 }
 
-.accounts-total td {
+.accounts-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
   border-top: 2px solid var(--p-surface-200);
-  padding-top: 0.625rem !important;
+  padding-top: 0.625rem;
 
   @media (prefers-color-scheme: dark) {
     border-top-color: var(--p-surface-700);

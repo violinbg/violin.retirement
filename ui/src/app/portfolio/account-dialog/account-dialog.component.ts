@@ -1,0 +1,131 @@
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
+import { firstValueFrom } from 'rxjs';
+import {
+  PortfolioService,
+  PortfolioAccount,
+  ACCOUNT_TYPES,
+  ASSET_CLASSES,
+} from '../../core/services/portfolio.service';
+
+@Component({
+  selector: 'vr-account-dialog',
+  standalone: true,
+  imports: [
+    FormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    InputNumberModule,
+    SelectModule,
+    TextareaModule,
+    TooltipModule,
+  ],
+  templateUrl: './account-dialog.component.html',
+  styleUrl: './account-dialog.component.scss',
+})
+export class AccountDialogComponent implements OnChanges {
+  private readonly portfolioSvc = inject(PortfolioService);
+  private readonly messageService = inject(MessageService);
+
+  @Input() visible = false;
+  @Input() account: PortfolioAccount | null = null;
+
+  @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() saved = new EventEmitter<void>();
+
+  saving = signal(false);
+
+  formName = '';
+  formAccountType = '';
+  formAssetClass = '';
+  formValue = 0;
+  formReturnRate: number | null = null;
+  formNote: string | null = null;
+
+  readonly accountTypes = ACCOUNT_TYPES.map(t => ({ label: t, value: t }));
+  readonly assetClasses = ASSET_CLASSES.map(c => ({ label: c, value: c }));
+
+  get isEditMode(): boolean {
+    return this.account !== null;
+  }
+
+  get header(): string {
+    return this.isEditMode ? 'Edit Account' : 'Add Account';
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible']?.currentValue === true) {
+      this.resetForm();
+    }
+  }
+
+  private resetForm(): void {
+    if (this.account) {
+      this.formName = this.account.name;
+      this.formAccountType = this.account.account_type;
+      this.formAssetClass = this.account.asset_class;
+      this.formValue = this.account.current_value;
+      this.formReturnRate = this.account.annual_return_rate;
+    } else {
+      this.formName = '';
+      this.formAccountType = '401k';
+      this.formAssetClass = 'Stocks';
+      this.formValue = 0;
+      this.formReturnRate = null;
+    }
+    this.formNote = null;
+  }
+
+  close(): void {
+    this.visibleChange.emit(false);
+  }
+
+  async save(): Promise<void> {
+    if (!this.formName.trim() || !this.formAccountType || !this.formAssetClass) return;
+    this.saving.set(true);
+
+    const payload = {
+      name: this.formName.trim(),
+      account_type: this.formAccountType,
+      asset_class: this.formAssetClass,
+      current_value: this.formValue,
+      annual_return_rate: this.formReturnRate,
+      note: this.formNote?.trim() || null,
+    };
+
+    const result = this.account
+      ? await firstValueFrom(this.portfolioSvc.updateAccount(this.account.id, payload))
+      : await firstValueFrom(this.portfolioSvc.createAccount(payload));
+
+    this.saving.set(false);
+
+    if (result) {
+      this.messageService.add({
+        severity: 'success',
+        summary: this.isEditMode ? 'Account Updated' : 'Account Added',
+        detail: this.isEditMode
+          ? `${payload.name} has been updated.`
+          : `${payload.name} has been added.`,
+        life: 3000,
+      });
+      this.close();
+      this.saved.emit();
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to save account. Please try again.',
+        life: 4000,
+      });
+    }
+  }
+}

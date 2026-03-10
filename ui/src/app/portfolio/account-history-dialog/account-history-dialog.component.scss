@@ -1,0 +1,31 @@
+.history-loading,
+.history-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--p-text-muted-color);
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.font-mono {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+.text-sm {
+  font-size: 0.85rem;
+}
+
+.muted {
+  color: var(--p-text-muted-color);
+}
+
+::ng-deep .history-dialog {
+  min-width: 480px;
+
+  @media (max-width: 600px) {
+    min-width: unset;
+  }
+}

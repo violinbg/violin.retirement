@@ -1,0 +1,75 @@
+<p-dialog
+  header="Edit User"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '400px' }"
+  [closable]="true"
+>
+  <div class="dialog-form" *ngIf="user">
+    <p class="user-info">Editing: <strong>{{ user.username }}</strong></p>
+
+    <div class="form-field">
+      <label for="eu-fullName">Full Name</label>
+      <input
+        pInputText
+        id="eu-fullName"
+        [ngModel]="form.get('full_name')?.value"
+        (ngModelChange)="form.get('full_name')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      <small class="error" *ngIf="form.get('full_name')?.invalid && form.get('full_name')?.touched">
+        Full Name is required
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="eu-role">Role</label>
+      <p-select
+        inputId="eu-role"
+        [options]="roles"
+        [ngModel]="form.get('role')?.value"
+        (ngModelChange)="form.get('role')?.setValue($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+        [disabled]="isSelf"
+      />
+      @if (isSelf) {
+        <small class="text-muted">You cannot change your own role</small>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="eu-password">Password (leave blank to keep current)</label>
+      <input
+        pInputText
+        id="eu-password"
+        [ngModel]="form.get('password')?.value"
+        (ngModelChange)="form.get('password')?.setValue($event)"
+        class="w-full"
+        type="password"
+        placeholder="Leave blank to keep current password"
+      />
+      <small class="error" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+        Password must be at least 8 characters
+      </small>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (onClick)="close()"
+    />
+    <p-button
+      label="Update"
+      icon="pi pi-check"
+      [disabled]="!form.valid"
+      (onClick)="update()"
+    />
+  </ng-template>
+</p-dialog>

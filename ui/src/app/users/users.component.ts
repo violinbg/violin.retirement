@@ -1,45 +1,36 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { SelectModule } from 'primeng/select';
-import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AuthService } from '../core/services/auth.service';
-import { UserService, User, CreateUserRequest, UpdateUserRequest } from '../core/services/user.service';
+import { UserService, User } from '../core/services/user.service';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
+import { CreateUserDialogComponent } from './create-user-dialog/create-user-dialog.component';
+import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.component';
 
 @Component({
   selector: 'vr-users',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
     ButtonModule,
     CardModule,
     TableModule,
-    InputTextModule,
-    InputGroupModule,
-    SelectModule,
-    DialogModule,
     ToastModule,
     ConfirmDialogModule,
-    ProgressSpinnerModule,
     TagModule,
     TooltipModule,
     AppHeaderComponent,
+    CreateUserDialogComponent,
+    EditUserDialogComponent,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -51,31 +42,12 @@ export class UsersComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
-  private readonly fb = inject(FormBuilder);
 
   users = signal<User[]>([]);
   loading = signal(true);
   showCreateDialog = signal(false);
   showEditDialog = signal(false);
   editingUser = signal<User | null>(null);
-
-  createForm = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
-    full_name: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    role: ['user', Validators.required],
-  });
-
-  editForm = this.fb.group({
-    full_name: ['', Validators.required],
-    role: ['user', Validators.required],
-    password: ['', [Validators.minLength(8), Validators.nullValidator]],
-  });
-
-  roles = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'User', value: 'user' },
-  ];
 
   readonly headerLeftAction: AppHeaderAction = {
     id: 'back',
@@ -135,79 +107,12 @@ export class UsersComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    this.createForm.reset({ role: 'user' });
     this.showCreateDialog.set(true);
-  }
-
-  async createUser(): Promise<void> {
-    if (!this.createForm.valid) return;
-
-    const req: CreateUserRequest = {
-      username: this.createForm.get('username')?.value || '',
-      full_name: this.createForm.get('full_name')?.value || '',
-      password: this.createForm.get('password')?.value || '',
-      role: (this.createForm.get('role')?.value as 'admin' | 'user') || 'user',
-    };
-
-    try {
-      await this.userSvc.createUser(req);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: `User "${req.username}" created successfully`,
-      });
-      this.showCreateDialog.set(false);
-      await this.loadUsers();
-    } catch (error: any) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: error?.error?.error || 'Failed to create user',
-      });
-    }
   }
 
   openEditDialog(user: User): void {
     this.editingUser.set(user);
-    this.editForm.patchValue({
-      full_name: user.full_name,
-      role: user.role,
-      password: '',
-    });
     this.showEditDialog.set(true);
-  }
-
-  async updateUser(): Promise<void> {
-    if (!this.editForm.valid) return;
-    const user = this.editingUser();
-    if (!user) return;
-
-    const req: UpdateUserRequest = {
-      full_name: this.editForm.get('full_name')?.value || '',
-      role: (this.editForm.get('role')?.value as 'admin' | 'user') || 'user',
-    };
-
-    const password = this.editForm.get('password')?.value;
-    if (password) {
-      req.password = password;
-    }
-
-    try {
-      await this.userSvc.updateUser(user.id, req);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'User updated successfully',
-      });
-      this.showEditDialog.set(false);
-      await this.loadUsers();
-    } catch (error: any) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: error?.error?.error || 'Failed to update user',
-      });
-    }
   }
 
   confirmToggleStatus(user: User): void {

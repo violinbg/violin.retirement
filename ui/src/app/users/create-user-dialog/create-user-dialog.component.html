@@ -1,0 +1,83 @@
+<p-dialog
+  header="Create New User"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '400px' }"
+  [closable]="true"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label for="cu-username">Username</label>
+      <input
+        pInputText
+        id="cu-username"
+        [ngModel]="form.get('username')?.value"
+        (ngModelChange)="form.get('username')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      @if (form.get('username')?.invalid && form.get('username')?.touched) {
+        <small class="error">Username is required (min 3 characters)</small>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="cu-fullName">Full Name</label>
+      <input
+        pInputText
+        id="cu-fullName"
+        [ngModel]="form.get('full_name')?.value"
+        (ngModelChange)="form.get('full_name')?.setValue($event)"
+        class="w-full"
+        type="text"
+      />
+      @if (form.get('full_name')?.invalid && form.get('full_name')?.touched) {
+        <small class="error">Full Name is required</small>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="cu-password">Password</label>
+      <input
+        pInputText
+        id="cu-password"
+        [ngModel]="form.get('password')?.value"
+        (ngModelChange)="form.get('password')?.setValue($event)"
+        class="w-full"
+        type="password"
+      />
+      @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <small class="error">Password is required (min 8 characters)</small>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="cu-role">Role</label>
+      <p-select
+        inputId="cu-role"
+        [options]="roles"
+        [ngModel]="form.get('role')?.value"
+        (ngModelChange)="form.get('role')?.setValue($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full"
+      />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      (onClick)="close()"
+    />
+    <p-button
+      label="Create"
+      icon="pi pi-check"
+      [disabled]="!form.valid"
+      (onClick)="create()"
+    />
+  </ng-template>
+</p-dialog>

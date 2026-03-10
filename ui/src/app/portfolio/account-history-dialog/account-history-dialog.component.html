@@ -1,0 +1,39 @@
+<p-dialog
+  [header]="header"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="history-dialog"
+>
+  @if (loading()) {
+    <div class="history-loading">
+      <i class="pi pi-spin pi-spinner"></i> Loading history…
+    </div>
+  } @else if (history().length === 0) {
+    <p class="history-empty">No history entries found.</p>
+  } @else {
+    <p-table [value]="history()" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date</th>
+          <th class="text-right">Value</th>
+          <th>Note</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-entry>
+        <tr>
+          <td class="text-sm muted">{{ formatDate(entry.recorded_at) }}</td>
+          <td class="text-right font-mono">{{ formatCurrency(entry.value) }}</td>
+          <td class="muted text-sm">{{ entry.note ?? '—' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <ng-template pTemplate="footer">
+    <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="close()" />
+  </ng-template>
+</p-dialog>

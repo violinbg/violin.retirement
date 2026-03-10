@@ -1,0 +1,115 @@
+<p-dialog
+  [header]="header"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="account-dialog"
+>
+  <div class="dialog-form">
+    <div class="form-field">
+      <label for="acct-name">Account Name *</label>
+      <input
+        pInputText
+        id="acct-name"
+        [(ngModel)]="formName"
+        placeholder="e.g. Vanguard 401k"
+        class="w-full"
+      />
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="acct-type">Account Type *</label>
+        <p-select
+          inputId="acct-type"
+          [options]="accountTypes"
+          [(ngModel)]="formAccountType"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select type"
+          styleClass="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="asset-class">Asset Class *</label>
+        <p-select
+          inputId="asset-class"
+          [options]="assetClasses"
+          [(ngModel)]="formAssetClass"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select class"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="acct-value">Current Value ($)</label>
+        <p-inputnumber
+          inputId="acct-value"
+          [(ngModel)]="formValue"
+          mode="currency"
+          currency="USD"
+          locale="en-US"
+          [min]="0"
+          styleClass="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="return-rate">
+          Annual Return Rate (%)
+          <i class="pi pi-info-circle" pTooltip="Optional: used for portfolio projections" tooltipPosition="top"></i>
+        </label>
+        <p-inputnumber
+          inputId="return-rate"
+          [(ngModel)]="formReturnRate"
+          [min]="0"
+          [max]="100"
+          suffix="%"
+          [showClear]="true"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="acct-note">
+        Note
+        @if (!isEditMode) {
+          <span class="label-hint">(for the initial entry)</span>
+        } @else {
+          <span class="label-hint">(recorded with this update)</span>
+        }
+      </label>
+      <textarea
+        pTextarea
+        id="acct-note"
+        [(ngModel)]="formNote"
+        placeholder="Optional note about this entry…"
+        rows="2"
+        class="w-full"
+      ></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="close()"
+    />
+    <p-button
+      [label]="isEditMode ? 'Save Changes' : 'Add Account'"
+      icon="pi pi-check"
+      [loading]="saving()"
+      [disabled]="!formName.trim() || !formAccountType || !formAssetClass"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>

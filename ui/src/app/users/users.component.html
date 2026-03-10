@@ -21,6 +21,63 @@
       />
     </div>
 
+    @if (adminSettings(); as settings) {
+      <p-card styleClass="settings-card" header="Registration Settings">
+        <div class="settings-grid">
+          <div class="settings-item">
+            <div class="settings-item__label">
+              <i class="pi pi-user-plus"></i>
+              <span>Allow Registration</span>
+            </div>
+            <p-toggleSwitch
+              [ngModel]="settings.registration_enabled"
+              (ngModelChange)="saveRegistrationEnabled($event)"
+              [disabled]="savingSettings()"
+            />
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item__label">
+              <i class="pi pi-users"></i>
+              <span>Max Users</span>
+            </div>
+            <div class="settings-item__max-users">
+              <p-inputNumber
+                [ngModel]="settings.max_users"
+                (ngModelChange)="settings.max_users = $event"
+                [min]="1"
+                [max]="10000"
+                [showButtons]="true"
+                [disabled]="savingSettings()"
+              />
+              <p-button
+                label="Save"
+                size="small"
+                [outlined]="true"
+                [loading]="savingSettings()"
+                (onClick)="saveMaxUsers(settings.max_users)"
+              />
+            </div>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item__label">
+              <i class="pi pi-chart-bar"></i>
+              <span>User Count</span>
+            </div>
+            <div class="settings-item__usage">
+              <span class="settings-item__usage-label">{{ settings.user_count }} / {{ settings.max_users }}</span>
+              <p-progressBar
+                [value]="(settings.user_count / settings.max_users) * 100"
+                [showValue]="false"
+                styleClass="settings-item__progress"
+              />
+            </div>
+          </div>
+        </div>
+      </p-card>
+    }
+
     @if (loading()) {
       <div class="loading-state">
         <i class="pi pi-spin pi-spinner loading-state__icon"></i>

@@ -4,9 +4,14 @@ import (
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
+	"github.com/violinbg/violin.retirement/internal/captcha"
 )
 
 func registerRoutes(r *gin.Engine, db *sql.DB) {
+	// NOTE: This captcha store is process-local memory. In multi-instance deployments,
+	// captcha generation and registration verification should use shared storage.
+	captchaStore := captcha.NewStore()
+
 	api := r.Group("/api/v1")
 	protected := api.Group("/")
 	protected.Use(AuthRequired(func() string { return jwtSecret(db) }))
@@ -15,8 +20,9 @@ func registerRoutes(r *gin.Engine, db *sql.DB) {
 
 	registerHealthRoutes(api, db)
 	registerSetupRoutes(api, db)
-	registerAuthRoutes(api, protected, db)
+	registerAuthRoutes(api, protected, db, captchaStore)
 	registerCalculatorRoutes(protected, db)
 	registerPortfolioRoutes(protected, db)
 	registerUserRoutes(admin, db)
+	registerAdminRoutes(admin, db)
 }

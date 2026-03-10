@@ -15,9 +15,10 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './login-dialog.component.scss'
 })
 export class LoginDialogComponent {
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
 
   @Output() closed = new EventEmitter<void>();
+  @Output() registerRequested = new EventEmitter<void>();
 
   visible = true;
   username = '';
@@ -37,6 +38,12 @@ export class LoginDialogComponent {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  openRegister(): void {
+    this.visible = false;
+    this.closed.emit();
+    this.registerRequested.emit();
   }
 
   close(): void {

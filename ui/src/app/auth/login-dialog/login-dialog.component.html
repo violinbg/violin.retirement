@@ -50,5 +50,12 @@
       [loading]="loading()"
       [disabled]="!username || !password"
     />
+
+    @if (auth.registrationEnabled()) {
+      <div class="register-link">
+        Don't have an account?
+        <a href="#" (click)="$event.preventDefault(); openRegister()">Register</a>
+      </div>
+    }
   </form>
 </p-dialog>

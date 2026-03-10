@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -8,9 +9,13 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AuthService } from '../core/services/auth.service';
 import { UserService, User } from '../core/services/user.service';
+import { AdminService, AdminSettings } from '../core/services/admin.service';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 import { CreateUserDialogComponent } from './create-user-dialog/create-user-dialog.component';
@@ -21,6 +26,7 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ButtonModule,
     CardModule,
     TableModule,
@@ -28,6 +34,9 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
     ConfirmDialogModule,
     TagModule,
     TooltipModule,
+    ToggleSwitchModule,
+    InputNumberModule,
+    ProgressBarModule,
     AppHeaderComponent,
     CreateUserDialogComponent,
     EditUserDialogComponent,
@@ -39,6 +48,7 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
 export class UsersComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly userSvc = inject(UserService);
+  private readonly adminSvc = inject(AdminService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
@@ -48,6 +58,8 @@ export class UsersComponent implements OnInit {
   showCreateDialog = signal(false);
   showEditDialog = signal(false);
   editingUser = signal<User | null>(null);
+  adminSettings = signal<AdminSettings | null>(null);
+  savingSettings = signal(false);
 
   readonly headerLeftAction: AppHeaderAction = {
     id: 'back',
@@ -71,6 +83,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsers();
+    this.loadAdminSettings();
   }
 
   onHeaderAction(actionId: string): void {
@@ -85,6 +98,44 @@ export class UsersComponent implements OnInit {
 
   navigateBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  async loadAdminSettings(): Promise<void> {
+    try {
+      const settings = await this.adminSvc.getSettings();
+      this.adminSettings.set(settings);
+    } catch {
+      // non-critical — ignore errors loading settings
+    }
+  }
+
+  async saveRegistrationEnabled(value: boolean): Promise<void> {
+    this.savingSettings.set(true);
+    try {
+      await this.adminSvc.updateSettings({ registration_enabled: value });
+      const current = this.adminSettings();
+      if (current) this.adminSettings.set({ ...current, registration_enabled: value });
+      this.auth.setRegistrationEnabled(value);
+    } catch {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update setting' });
+    } finally {
+      this.savingSettings.set(false);
+    }
+  }
+
+  async saveMaxUsers(value: number): Promise<void> {
+    if (!value || value < 1) return;
+    this.savingSettings.set(true);
+    try {
+      await this.adminSvc.updateSettings({ max_users: value });
+      const current = this.adminSettings();
+      if (current) this.adminSettings.set({ ...current, max_users: value });
+      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Max users updated' });
+    } catch {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update setting' });
+    } finally {
+      this.savingSettings.set(false);
+    }
   }
 
   async loadUsers(): Promise<void> {

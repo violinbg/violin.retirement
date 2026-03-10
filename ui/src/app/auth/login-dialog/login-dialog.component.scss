@@ -16,3 +16,19 @@
     color: var(--p-text-color);
   }
 }
+
+.register-link {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color);
+
+  a {
+    color: var(--p-primary-color);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

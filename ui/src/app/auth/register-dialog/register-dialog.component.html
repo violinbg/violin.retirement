@@ -1,0 +1,86 @@
+<p-dialog
+  header="Create Account"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="register-form">
+    <div class="field">
+      <label for="reg-username">Username</label>
+      <input
+        id="reg-username"
+        pInputText
+        formControlName="username"
+        placeholder="e.g. johndoe"
+        class="w-full" />
+      @if (form.controls.username.invalid && form.controls.username.touched) {
+        <small class="p-error">Username must be at least 3 characters.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="reg-fullname">Full Name</label>
+      <input
+        id="reg-fullname"
+        pInputText
+        formControlName="full_name"
+        placeholder="e.g. John Doe"
+        class="w-full" />
+      @if (form.controls.full_name.invalid && form.controls.full_name.touched) {
+        <small class="p-error">Full name is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="reg-password">Password</label>
+      <p-password
+        inputId="reg-password"
+        formControlName="password"
+        [toggleMask]="true"
+        [feedback]="false"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+        placeholder="Minimum 8 characters" />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <small class="p-error">Password must be at least 8 characters.</small>
+      }
+    </div>
+
+    @if (captcha()) {
+      <div class="field captcha-field">
+        <label>Verify you're human</label>
+        <div class="captcha-row">
+          <span class="captcha-question">{{ captcha()!.question }}</span>
+          <input
+            pInputText
+            formControlName="captcha_answer"
+            placeholder="Answer"
+            class="captcha-input" />
+          <p-button
+            icon="pi pi-refresh"
+            severity="secondary"
+            [text]="true"
+            (onClick)="loadCaptcha()"
+            pTooltip="New question"
+            tooltipPosition="top" />
+        </div>
+        @if (form.controls.captcha_answer.invalid && form.controls.captcha_answer.touched) {
+          <small class="p-error">Answer is required.</small>
+        }
+      </div>
+    }
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="close()" />
+    <p-button
+      label="Register"
+      [loading]="loading()"
+      [disabled]="form.invalid"
+      (onClick)="submit()" />
+  </ng-template>
+</p-dialog>

@@ -25,6 +25,66 @@
   }
 }
 
+// ── Settings card ────────────────────────────────────────────────────────────
+.settings-card {
+  margin-bottom: 1.25rem;
+}
+
+.settings-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--p-text-muted-color);
+    white-space: nowrap;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  &__max-users {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    p-inputNumber {
+      width: 185px;
+    }
+  }
+
+  &__usage {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 180px;
+  }
+
+  &__usage-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+  }
+
+  &__progress {
+    height: 6px !important;
+  }
+}
+
 // ── Header bar ───────────────────────────────────────────────────────────────
 .header-bar {
   display: flex;

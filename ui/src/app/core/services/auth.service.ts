@@ -1,12 +1,25 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 export interface CurrentUser {
   id: string;
   username: string;
   full_name: string;
   role: string;
+}
+
+export interface CaptchaChallenge {
+  id: string;
+  question: string;
+}
+
+export interface RegisterRequest {
+  username: string;
+  full_name: string;
+  password: string;
+  captcha_id: string;
+  captcha_answer: string;
 }
 
 const TOKEN_KEY = 'vr_token';
@@ -18,14 +31,16 @@ export class AuthService {
   readonly isInitialized = signal(false);
   readonly isLoggedIn = signal(false);
   readonly currentUser = signal<CurrentUser | null>(null);
+  readonly registrationEnabled = signal(false);
 
   /** Called once at app boot via APP_INITIALIZER. */
   async init(): Promise<void> {
     const status = await firstValueFrom(
-      this.http.get<{ initialized: boolean }>('/api/v1/setup/status')
-    ).catch(() => ({ initialized: false }));
+      this.http.get<{ initialized: boolean; registration_enabled: boolean }>('/api/v1/setup/status')
+    ).catch(() => ({ initialized: false, registration_enabled: false }));
 
     this.isInitialized.set(status.initialized);
+    this.registrationEnabled.set(status.registration_enabled ?? false);
 
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) return;
@@ -48,6 +63,23 @@ export class AuthService {
         username,
         password
       })
+    );
+    localStorage.setItem(TOKEN_KEY, res.token);
+    this.isLoggedIn.set(true);
+    this.currentUser.set(res.user);
+  }
+
+  setRegistrationEnabled(value: boolean): void {
+    this.registrationEnabled.set(value);
+  }
+
+  getCaptcha(): Observable<CaptchaChallenge> {
+    return this.http.get<CaptchaChallenge>('/api/v1/auth/captcha');
+  }
+
+  async register(req: RegisterRequest): Promise<void> {
+    const res = await firstValueFrom(
+      this.http.post<{ token: string; user: CurrentUser }>('/api/v1/auth/register', req)
     );
     localStorage.setItem(TOKEN_KEY, res.token);
     this.isLoggedIn.set(true);

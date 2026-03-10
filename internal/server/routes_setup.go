@@ -31,7 +31,14 @@ func handleSetupStatus(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"initialized": ok})
+
+		var regEnabled string
+		db.QueryRow("SELECT value FROM app_config WHERE key = 'registration_enabled'").Scan(&regEnabled) //nolint:errcheck
+
+		c.JSON(http.StatusOK, gin.H{
+			"initialized":          ok,
+			"registration_enabled": regEnabled == "true",
+		})
 	}
 }
 
@@ -96,6 +103,19 @@ func handleSetup(db *sql.DB) gin.HandlerFunc {
 		); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
+		}
+
+		for _, kv := range [][]string{
+			{"registration_enabled", "true"},
+			{"max_users", "100"},
+		} {
+			if _, err := tx.Exec(
+				"INSERT OR IGNORE INTO app_config (key, value, created_at, updated_at) VALUES (?, ?, ?, ?)",
+				kv[0], kv[1], now, now,
+			); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 		}
 
 		if err := tx.Commit(); err != nil {

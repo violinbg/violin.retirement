@@ -3,8 +3,11 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { AuthService } from '../core/services/auth.service';
 import { LoginDialogComponent } from '../auth/login-dialog/login-dialog.component';
+import { RegisterDialogComponent } from '../auth/register-dialog/register-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
@@ -12,7 +15,8 @@ import { AppHeaderAction } from '../shared/components/app-header/app-header.mode
 @Component({
   selector: 'vr-home',
   standalone: true,
-  imports: [CardModule, ButtonModule, TagModule, LoginDialogComponent, AboutDialogComponent, AppHeaderComponent],
+  providers: [MessageService],
+  imports: [CardModule, ButtonModule, TagModule, ToastModule, LoginDialogComponent, RegisterDialogComponent, AboutDialogComponent, AppHeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -22,6 +26,7 @@ export class HomeComponent {
 
   showLoginDialog = signal(false);
   showAboutDialog = signal(false);
+  showRegisterDialog = signal(false);
 
   readonly features = [
     {

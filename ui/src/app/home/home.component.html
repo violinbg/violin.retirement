@@ -72,9 +72,20 @@
 </div>
 
 @if (showLoginDialog()) {
-  <vr-login-dialog (closed)="showLoginDialog.set(false)" />
+  <vr-login-dialog
+    (closed)="showLoginDialog.set(false)"
+    (registerRequested)="showRegisterDialog.set(true)" />
+}
+
+@if (showRegisterDialog()) {
+  <vr-register-dialog
+    [visible]="showRegisterDialog()"
+    (visibleChange)="showRegisterDialog.set($event)"
+    (registered)="goToDashboard()" />
 }
 
 @if (showAboutDialog()) {
   <vr-about-dialog (closed)="showAboutDialog.set(false)" />
 }
+
+<p-toast />

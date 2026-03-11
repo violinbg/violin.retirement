@@ -2,13 +2,24 @@
 @import 'primeicons/primeicons.css';
 
 // Noto Color Emoji — open source (OFL) color emoji font for cross-platform flag rendering
+
+// @font-face {
+//   font-family: 'Noto Color Emoji';
+//   font-style: normal;
+//   font-weight: 400;
+//   font-display: swap;
+//   src: url('/fonts/noto-color-emoji.ttf') format('truetype');
+// }
+
+// smaller subset of Noto Color Emoji containing only flag glyphs, to reduce font size and improve loading performance
 @font-face {
-  font-family: 'Noto Color Emoji';
+  font-family: 'Noto Color Emoji - Flags Only';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/noto-color-emoji.ttf') format('truetype');
+  src: url('/fonts/noto-color-emoji-flags-only.ttf') format('truetype');
 }
+// ----
 
 * {
   box-sizing: border-box;

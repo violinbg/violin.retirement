@@ -5,6 +5,8 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"path"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,14 +39,36 @@ func New(db *sql.DB, uiFS embed.FS) *gin.Engine {
 		if path != "" {
 			if f, err := stripped.Open(path); err == nil {
 				f.Close()
+				setCacheHeaders(c, c.Request.URL.Path)
 				fileServer.ServeHTTP(c.Writer, c.Request)
 				return
 			}
 		}
 
 		// Fall back to index.html for Angular client-side routing.
+		c.Header("Cache-Control", "no-cache")
 		c.Data(http.StatusOK, "text/html; charset=utf-8", indexHTML)
 	})
 
 	return r
+}
+
+// longCacheExts lists file extensions for assets that are fingerprinted by the
+// Angular build and can be cached indefinitely.
+var longCacheExts = map[string]bool{
+	".js": true, ".css": true,
+	".woff": true, ".woff2": true, ".ttf": true, ".eot": true,
+	".png": true, ".jpg": true, ".jpeg": true, ".gif": true,
+	".svg": true, ".ico": true, ".webp": true, ".avif": true,
+	".map": true, ".json": true,
+}
+
+// setCacheHeaders sets Cache-Control headers based on the served file's extension.
+func setCacheHeaders(c *gin.Context, urlPath string) {
+	ext := strings.ToLower(path.Ext(urlPath))
+	if longCacheExts[ext] {
+		c.Header("Cache-Control", "public, max-age=31536000, immutable")
+	} else {
+		c.Header("Cache-Control", "no-cache")
+	}
 }

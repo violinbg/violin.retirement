@@ -60,7 +60,8 @@ var longCacheExts = map[string]bool{
 	".woff": true, ".woff2": true, ".ttf": true, ".eot": true,
 	".png": true, ".jpg": true, ".jpeg": true, ".gif": true,
 	".svg": true, ".ico": true, ".webp": true, ".avif": true,
-	".map": true, ".json": true,
+	".map":  true,
+	".json": false, // JSON files may change more frequently, so we don't cache them long-term. (especially lang files)
 }
 
 // setCacheHeaders sets Cache-Control headers based on the served file's extension.

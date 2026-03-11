@@ -10,13 +10,16 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 2rem;
-  background: var(--p-surface-0);
+  background: color-mix(in srgb, var(--p-surface-0) 84%, transparent);
   border-bottom: 1px solid var(--p-surface-200);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
 
   @media (prefers-color-scheme: dark) {
     background: color-mix(in srgb, var(--p-surface-900) 90%, transparent);
     border-bottom-color: var(--p-surface-700);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
   }
 
   &--static {

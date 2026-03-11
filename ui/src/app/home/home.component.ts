@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
 import { LoginDialogComponent } from '../auth/login-dialog/login-dialog.component';
 import { RegisterDialogComponent } from '../auth/register-dialog/register-dialog.component';
@@ -16,13 +17,14 @@ import { AppHeaderAction } from '../shared/components/app-header/app-header.mode
   selector: 'vr-home',
   standalone: true,
   providers: [MessageService],
-  imports: [CardModule, ButtonModule, TagModule, ToastModule, LoginDialogComponent, RegisterDialogComponent, AboutDialogComponent, AppHeaderComponent],
+  imports: [CardModule, ButtonModule, TagModule, ToastModule, TranslatePipe, LoginDialogComponent, RegisterDialogComponent, AboutDialogComponent, AppHeaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   showLoginDialog = signal(false);
   showAboutDialog = signal(false);
@@ -31,29 +33,29 @@ export class HomeComponent {
   readonly features = [
     {
       icon: 'pi pi-chart-line',
-      title: 'Portfolio Tracking',
-      description: 'Monitor your investment portfolio across accounts and asset classes in real time.',
+      titleKey: 'HOME.FEATURES.PORTFOLIO_TITLE',
+      descriptionKey: 'HOME.FEATURES.PORTFOLIO_DESC',
       route: '/portfolio' as string | null,
       comingSoon: false,
     },
     {
       icon: 'pi pi-calculator',
-      title: 'FIRE Calculator',
-      description: 'Project your path to financial independence with dynamic retirement calculators.',
+      titleKey: 'HOME.FEATURES.CALCULATOR_TITLE',
+      descriptionKey: 'HOME.FEATURES.CALCULATOR_DESC',
       route: '/calculator',
       comingSoon: false,
     },
     {
       icon: 'pi pi-wallet',
-      title: 'Savings Goals',
-      description: 'Set and track savings milestones on your journey to early retirement.',
+      titleKey: 'HOME.FEATURES.GOALS_TITLE',
+      descriptionKey: 'HOME.FEATURES.GOALS_DESC',
       route: null as string | null,
       comingSoon: true,
     },
     {
       icon: 'pi pi-shield',
-      title: 'Safe Withdrawal',
-      description: 'Model sustainable withdrawal rates and stress-test your retirement plan.',
+      titleKey: 'HOME.FEATURES.WITHDRAWAL_TITLE',
+      descriptionKey: 'HOME.FEATURES.WITHDRAWAL_DESC',
       route: null as string | null,
       comingSoon: true,
     }
@@ -68,13 +70,13 @@ export class HomeComponent {
       return [
         {
           id: 'dashboard',
-          label: 'Dashboard',
+          labelKey: 'HEADER.DASHBOARD',
           icon: 'pi pi-th-large',
           size: 'small',
         },
         {
           id: 'logout',
-          label: 'Sign Out',
+          labelKey: 'HEADER.SIGN_OUT',
           icon: 'pi pi-sign-out',
           severity: 'secondary',
           outlined: true,
@@ -86,7 +88,7 @@ export class HomeComponent {
     return [
       {
         id: 'signin',
-        label: 'Sign In',
+        labelKey: 'HEADER.SIGN_IN',
         icon: 'pi pi-sign-in',
         severity: 'secondary',
         outlined: true,

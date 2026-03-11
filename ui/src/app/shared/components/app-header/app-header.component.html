@@ -2,7 +2,7 @@
   <div class="app-header__leading">
     @if (leftAction) {
       <p-button
-        [label]="leftAction.label"
+        [label]="resolveLabel(leftAction)"
         [icon]="leftAction.icon"
         [severity]="leftAction.severity"
         [outlined]="leftAction.outlined ?? false"
@@ -10,7 +10,7 @@
         [size]="leftAction.size ?? 'small'"
         [loading]="leftAction.loading ?? false"
         [disabled]="leftAction.disabled ?? false"
-        [pTooltip]="leftAction.tooltip ?? undefined"
+        [pTooltip]="resolveTooltip(leftAction)"
         tooltipPosition="bottom"
         (onClick)="onAction(leftAction)"
       />
@@ -18,7 +18,7 @@
 
     <span class="app-header__brand">
       <i [class]="logoIcon"></i>
-      <span class="app-header__title">{{ title }}</span>
+      <span class="app-header__title">{{ resolvedTitle }}</span>
     </span>
   </div>
 
@@ -31,11 +31,24 @@
     </span>
   }
 
+  @if (showLanguageSelector) {
+    <p-select
+      class="app-header__lang-select"
+      [options]="languageService.languages"
+      [ngModel]="languageService.currentLang"
+      optionLabel="label"
+      optionValue="code"
+      [style]="{ minWidth: '120px' }"
+      appendTo="body"
+      (ngModelChange)="onLanguageChange($event)"
+    />
+  }
+
   @if (visibleActions.length > 0) {
     <nav class="app-header__actions" [class.app-header__actions--single]="visibleActions.length === 1">
       @for (action of visibleActions; track action.id) {
         <p-button
-          [label]="action.label"
+          [label]="resolveLabel(action)"
           [icon]="action.icon"
           [severity]="action.severity"
           [outlined]="action.outlined ?? false"
@@ -43,7 +56,7 @@
           [size]="action.size ?? 'small'"
           [loading]="action.loading ?? false"
           [disabled]="action.disabled ?? false"
-          [pTooltip]="action.tooltip ?? undefined"
+          [pTooltip]="resolveTooltip(action)"
           tooltipPosition="bottom"
           (onClick)="onAction(action)"
         />

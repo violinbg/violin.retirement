@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService, CaptchaChallenge } from '../../core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +22,7 @@ import { firstValueFrom } from 'rxjs';
     PasswordModule,
     ButtonModule,
     TooltipModule,
+    TranslatePipe,
   ],
   templateUrl: './register-dialog.component.html',
   styleUrl: './register-dialog.component.scss',
@@ -33,6 +35,7 @@ export class RegisterDialogComponent implements OnChanges {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
   captcha = signal<CaptchaChallenge | null>(null);
   loading = signal(false);
@@ -57,7 +60,11 @@ export class RegisterDialogComponent implements OnChanges {
       this.captcha.set(c);
       this.form.controls.captcha_answer.reset('');
     } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load captcha' });
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
+        detail: this.translate.instant('AUTH.REGISTER.ERROR_CAPTCHA_LOAD'),
+      });
     }
   }
 
@@ -72,12 +79,20 @@ export class RegisterDialogComponent implements OnChanges {
         ...this.form.getRawValue(),
         captcha_id: c.id,
       });
-      this.messageService.add({ severity: 'success', summary: 'Welcome!', detail: 'Account created successfully' });
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('AUTH.REGISTER.SUCCESS_TITLE'),
+        detail: this.translate.instant('AUTH.REGISTER.SUCCESS_DETAIL'),
+      });
       this.close();
       this.registered.emit();
     } catch (err: any) {
-      const msg = err?.error?.error ?? 'Registration failed';
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+      const msg = err?.error?.error ?? this.translate.instant('AUTH.REGISTER.ERROR_FAILED');
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
+        detail: msg,
+      });
       this.loadCaptcha();
     } finally {
       this.loading.set(false);

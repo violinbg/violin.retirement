@@ -10,39 +10,39 @@
 >
   <div class="dialog-form">
     <div class="form-field">
-      <label for="acct-name">Account Name *</label>
+      <label for="acct-name">{{ 'ACCOUNT_DIALOG.NAME_LABEL' | translate }}</label>
       <input
         pInputText
         id="acct-name"
         [(ngModel)]="formName"
-        placeholder="e.g. Vanguard 401k"
+        [placeholder]="'ACCOUNT_DIALOG.NAME_PLACEHOLDER' | translate"
         class="w-full"
       />
     </div>
 
     <div class="form-row">
       <div class="form-field">
-        <label for="acct-type">Account Type *</label>
+        <label for="acct-type">{{ 'ACCOUNT_DIALOG.TYPE_LABEL' | translate }}</label>
         <p-select
           inputId="acct-type"
           [options]="accountTypes"
           [(ngModel)]="formAccountType"
           optionLabel="label"
           optionValue="value"
-          placeholder="Select type"
+          [placeholder]="'ACCOUNT_DIALOG.TYPE_PLACEHOLDER' | translate"
           styleClass="w-full"
           appendTo="body"
         />
       </div>
       <div class="form-field">
-        <label for="asset-class">Asset Class *</label>
+        <label for="asset-class">{{ 'ACCOUNT_DIALOG.ASSET_CLASS_LABEL' | translate }}</label>
         <p-select
           inputId="asset-class"
           [options]="assetClasses"
           [(ngModel)]="formAssetClass"
           optionLabel="label"
           optionValue="value"
-          placeholder="Select class"
+          [placeholder]="'ACCOUNT_DIALOG.ASSET_CLASS_PLACEHOLDER' | translate"
           styleClass="w-full"
           appendTo="body"
         />
@@ -51,7 +51,7 @@
 
     <div class="form-row">
       <div class="form-field">
-        <label for="acct-value">Current Value ($)</label>
+        <label for="acct-value">{{ 'ACCOUNT_DIALOG.VALUE_LABEL' | translate }}</label>
         <p-inputnumber
           inputId="acct-value"
           [(ngModel)]="formValue"
@@ -64,8 +64,8 @@
       </div>
       <div class="form-field">
         <label for="return-rate">
-          Annual Return Rate (%)
-          <i class="pi pi-info-circle" pTooltip="Optional: used for portfolio projections" tooltipPosition="top"></i>
+          {{ 'ACCOUNT_DIALOG.RETURN_LABEL' | translate }}
+          <i class="pi pi-info-circle" [pTooltip]="'ACCOUNT_DIALOG.RETURN_TOOLTIP' | translate" tooltipPosition="top"></i>
         </label>
         <p-inputnumber
           inputId="return-rate"
@@ -81,18 +81,18 @@
 
     <div class="form-field">
       <label for="acct-note">
-        Note
+        {{ 'ACCOUNT_DIALOG.NOTE_LABEL' | translate }}
         @if (!isEditMode) {
-          <span class="label-hint">(for the initial entry)</span>
+          <span class="label-hint">{{ 'ACCOUNT_DIALOG.NOTE_HINT_ADD' | translate }}</span>
         } @else {
-          <span class="label-hint">(recorded with this update)</span>
+          <span class="label-hint">{{ 'ACCOUNT_DIALOG.NOTE_HINT_EDIT' | translate }}</span>
         }
       </label>
       <textarea
         pTextarea
         id="acct-note"
         [(ngModel)]="formNote"
-        placeholder="Optional note about this entry…"
+        [placeholder]="'ACCOUNT_DIALOG.NOTE_PLACEHOLDER' | translate"
         rows="2"
         class="w-full"
       ></textarea>
@@ -101,13 +101,13 @@
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Cancel"
+      [label]="'ACCOUNT_DIALOG.CANCEL' | translate"
       severity="secondary"
       [outlined]="true"
       (onClick)="close()"
     />
     <p-button
-      [label]="isEditMode ? 'Save Changes' : 'Add Account'"
+      [label]="isEditMode ? ('ACCOUNT_DIALOG.SAVE' | translate) : ('ACCOUNT_DIALOG.ADD' | translate)"
       icon="pi pi-check"
       [loading]="saving()"
       [disabled]="!formName.trim() || !formAccountType || !formAssetClass"

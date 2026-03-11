@@ -10,17 +10,17 @@
 >
   @if (loading()) {
     <div class="history-loading">
-      <i class="pi pi-spin pi-spinner"></i> Loading history…
+      <i class="pi pi-spin pi-spinner"></i> {{ 'HISTORY_DIALOG.LOADING' | translate }}
     </div>
   } @else if (history().length === 0) {
-    <p class="history-empty">No history entries found.</p>
+    <p class="history-empty">{{ 'HISTORY_DIALOG.EMPTY' | translate }}</p>
   } @else {
     <p-table [value]="history()" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
-          <th>Date</th>
-          <th class="text-right">Value</th>
-          <th>Note</th>
+          <th>{{ 'HISTORY_DIALOG.COL_DATE' | translate }}</th>
+          <th class="text-right">{{ 'HISTORY_DIALOG.COL_VALUE' | translate }}</th>
+          <th>{{ 'HISTORY_DIALOG.COL_NOTE' | translate }}</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-entry>
@@ -34,6 +34,6 @@
   }
 
   <ng-template pTemplate="footer">
-    <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="close()" />
+    <p-button [label]="'HISTORY_DIALOG.CLOSE' | translate" severity="secondary" [outlined]="true" (onClick)="close()" />
   </ng-template>
 </p-dialog>

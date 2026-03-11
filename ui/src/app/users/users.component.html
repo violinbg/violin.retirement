@@ -3,7 +3,7 @@
 
 <div class="users">
   <vr-app-header
-    title="Violin Retirement"
+    titleKey="APP.TITLE"
     logoIcon="pi pi-chart-line"
     [username]="auth.currentUser()?.full_name ?? null"
     [leftAction]="headerLeftAction"
@@ -12,9 +12,9 @@
   />
   <div class="users__body">
     <div class="header-bar">
-      <h1 class="header-bar__title">User Management</h1>
+      <h1 class="header-bar__title">{{ 'USERS.TITLE' | translate }}</h1>
       <p-button
-        label="Create New User"
+        [label]="'USERS.CREATE_NEW' | translate"
         icon="pi pi-plus"
         size="small"
         (onClick)="openCreateDialog()"
@@ -22,12 +22,12 @@
     </div>
 
     @if (adminSettings(); as settings) {
-      <p-card styleClass="settings-card" header="Registration Settings">
+      <p-card styleClass="settings-card" [header]="'USERS.SETTINGS_HEADER' | translate">
         <div class="settings-grid">
           <div class="settings-item">
             <div class="settings-item__label">
               <i class="pi pi-user-plus"></i>
-              <span>Allow Registration</span>
+              <span>{{ 'USERS.ALLOW_REGISTRATION' | translate }}</span>
             </div>
             <p-toggleSwitch
               [ngModel]="settings.registration_enabled"
@@ -39,7 +39,7 @@
           <div class="settings-item">
             <div class="settings-item__label">
               <i class="pi pi-users"></i>
-              <span>Max Users</span>
+              <span>{{ 'USERS.MAX_USERS' | translate }}</span>
             </div>
             <div class="settings-item__max-users">
               <p-inputNumber
@@ -51,7 +51,7 @@
                 [disabled]="savingSettings()"
               />
               <p-button
-                label="Save"
+                [label]="'USERS.SAVE' | translate"
                 size="small"
                 [outlined]="true"
                 [loading]="savingSettings()"
@@ -63,7 +63,7 @@
           <div class="settings-item">
             <div class="settings-item__label">
               <i class="pi pi-chart-bar"></i>
-              <span>User Count</span>
+              <span>{{ 'USERS.USER_COUNT' | translate }}</span>
             </div>
             <div class="settings-item__usage">
               <span class="settings-item__usage-label">{{ settings.user_count }} / {{ settings.max_users }}</span>
@@ -81,7 +81,7 @@
     @if (loading()) {
       <div class="loading-state">
         <i class="pi pi-spin pi-spinner loading-state__icon"></i>
-        <p>Loading users…</p>
+        <p>{{ 'USERS.LOADING' | translate }}</p>
       </div>
     } @else {
       <p-card styleClass="users__card">
@@ -94,13 +94,13 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>Username</th>
-          <th>Full Name</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th>Last Login</th>
-          <th>Actions</th>
+          <th>{{ 'USERS.COL_USERNAME' | translate }}</th>
+          <th>{{ 'USERS.COL_FULL_NAME' | translate }}</th>
+          <th>{{ 'USERS.COL_ROLE' | translate }}</th>
+          <th>{{ 'USERS.COL_STATUS' | translate }}</th>
+          <th>{{ 'USERS.COL_CREATED' | translate }}</th>
+          <th>{{ 'USERS.COL_LAST_LOGIN' | translate }}</th>
+          <th>{{ 'USERS.COL_ACTIONS' | translate }}</th>
         </tr>
       </ng-template>
 
@@ -129,7 +129,7 @@
                 [text]="true"
                 size="small"
                 severity="secondary"
-                pTooltip="Edit"
+                [pTooltip]="'USERS.TOOLTIP_EDIT' | translate"
                 tooltipPosition="top"
                 (onClick)="openEditDialog(user)"
               />
@@ -138,7 +138,7 @@
                 [text]="true"
                 size="small"
                 [severity]="user.active ? 'warn' : 'success'"
-                [pTooltip]="user.active ? 'Deactivate' : 'Reactivate'"
+                [pTooltip]="user.active ? ('USERS.TOOLTIP_DEACTIVATE' | translate) : ('USERS.TOOLTIP_REACTIVATE' | translate)"
                 tooltipPosition="top"
                 (onClick)="confirmToggleStatus(user)"
                 [disabled]="user.id === auth.currentUser()?.id"
@@ -148,7 +148,7 @@
                 [text]="true"
                 size="small"
                 severity="danger"
-                pTooltip="Delete"
+                [pTooltip]="'USERS.TOOLTIP_DELETE' | translate"
                 tooltipPosition="top"
                 (onClick)="confirmDelete(user)"
                 [disabled]="user.id === auth.currentUser()?.id"

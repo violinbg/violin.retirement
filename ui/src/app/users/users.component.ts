@@ -20,6 +20,7 @@ import { AppHeaderComponent } from '../shared/components/app-header/app-header.c
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 import { CreateUserDialogComponent } from './create-user-dialog/create-user-dialog.component';
 import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.component';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-users',
@@ -40,6 +41,7 @@ import { EditUserDialogComponent } from './edit-user-dialog/edit-user-dialog.com
     AppHeaderComponent,
     CreateUserDialogComponent,
     EditUserDialogComponent,
+    TranslatePipe,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -52,6 +54,7 @@ export class UsersComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   users = signal<User[]>([]);
   loading = signal(true);
@@ -63,7 +66,7 @@ export class UsersComponent implements OnInit {
 
   readonly headerLeftAction: AppHeaderAction = {
     id: 'back',
-    label: 'Back',
+    labelKey: 'HEADER.BACK',
     icon: 'pi pi-arrow-left',
     severity: 'secondary',
     outlined: true,
@@ -73,7 +76,7 @@ export class UsersComponent implements OnInit {
   readonly headerActions: AppHeaderAction[] = [
     {
       id: 'logout',
-      label: 'Sign Out',
+      labelKey: 'HEADER.SIGN_OUT',
       icon: 'pi pi-sign-out',
       severity: 'secondary',
       outlined: true,
@@ -117,7 +120,7 @@ export class UsersComponent implements OnInit {
       if (current) this.adminSettings.set({ ...current, registration_enabled: value });
       this.auth.setRegistrationEnabled(value);
     } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update setting' });
+      this.messageService.add({ severity: 'error', summary: this.translate.instant('USERS.TOAST_ERROR'), detail: this.translate.instant('USERS.TOAST_SETTINGS_ERROR') });
     } finally {
       this.savingSettings.set(false);
     }
@@ -130,9 +133,9 @@ export class UsersComponent implements OnInit {
       await this.adminSvc.updateSettings({ max_users: value });
       const current = this.adminSettings();
       if (current) this.adminSettings.set({ ...current, max_users: value });
-      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Max users updated' });
+      this.messageService.add({ severity: 'success', summary: this.translate.instant('USERS.TOAST_SAVED'), detail: this.translate.instant('USERS.TOAST_MAX_USERS_SAVED') });
     } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update setting' });
+      this.messageService.add({ severity: 'error', summary: this.translate.instant('USERS.TOAST_ERROR'), detail: this.translate.instant('USERS.TOAST_SETTINGS_ERROR') });
     } finally {
       this.savingSettings.set(false);
     }
@@ -149,7 +152,7 @@ export class UsersComponent implements OnInit {
         || 'Failed to load users';
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
         detail,
       });
     } finally {
@@ -167,10 +170,15 @@ export class UsersComponent implements OnInit {
   }
 
   confirmToggleStatus(user: User): void {
-    const action = user.active ? 'deactivate' : 'reactivate';
+    const isDeactivating = user.active;
     this.confirmService.confirm({
-      message: `Are you sure you want to ${action} user "${user.username}"?`,
-      header: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+      message: this.translate.instant(
+        isDeactivating ? 'USERS.CONFIRM_DEACTIVATE_MSG' : 'USERS.CONFIRM_REACTIVATE_MSG',
+        { username: user.username }
+      ),
+      header: this.translate.instant(
+        isDeactivating ? 'USERS.CONFIRM_DEACTIVATE_HEADER' : 'USERS.CONFIRM_REACTIVATE_HEADER'
+      ),
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         await this.toggleUserStatus(user);
@@ -181,18 +189,17 @@ export class UsersComponent implements OnInit {
   async toggleUserStatus(user: User): Promise<void> {
     try {
       await this.userSvc.toggleUserStatus(user.id, !user.active);
-      const action = user.active ? 'deactivated' : 'reactivated';
       this.messageService.add({
         severity: 'success',
-        summary: 'Success',
-        detail: `User "${user.username}" ${action}`,
+        summary: this.translate.instant('USERS.TOAST_SUCCESS'),
+        detail: this.translate.instant(user.active ? 'USERS.TOAST_DEACTIVATED' : 'USERS.TOAST_REACTIVATED', { username: user.username }),
       });
       await this.loadUsers();
     } catch (error: any) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: error?.error?.error || 'Failed to toggle user status',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
+        detail: error?.error?.error || this.translate.instant('USERS.TOAST_TOGGLE_ERROR'),
       });
     }
   }
@@ -201,15 +208,15 @@ export class UsersComponent implements OnInit {
     if (user.id === this.auth.currentUser()?.id) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Cannot Delete',
-        detail: 'You cannot delete your own account',
+        summary: this.translate.instant('USERS.TOAST_CANNOT_DELETE_HEADER'),
+        detail: this.translate.instant('USERS.TOAST_CANNOT_DELETE_DETAIL'),
       });
       return;
     }
 
     this.confirmService.confirm({
-      message: `Are you sure you want to permanently delete user "${user.username}"? This action cannot be undone.`,
-      header: 'Delete User',
+      message: this.translate.instant('USERS.CONFIRM_DELETE_MSG', { username: user.username }),
+      header: this.translate.instant('USERS.CONFIRM_DELETE_HEADER'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: async () => {
@@ -223,29 +230,29 @@ export class UsersComponent implements OnInit {
       await this.userSvc.deleteUser(user.id);
       this.messageService.add({
         severity: 'success',
-        summary: 'Success',
-        detail: `User "${user.username}" deleted successfully`,
+        summary: this.translate.instant('USERS.TOAST_SUCCESS'),
+        detail: this.translate.instant('USERS.TOAST_DELETED', { username: user.username }),
       });
       await this.loadUsers();
     } catch (error: any) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: error?.error?.error || 'Failed to delete user',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
+        detail: error?.error?.error || this.translate.instant('USERS.TOAST_DELETE_ERROR'),
       });
     }
   }
 
   getRoleTag(role: string): { label: string; severity: 'danger' | 'info' } {
     return role === 'admin'
-      ? { label: 'Admin', severity: 'danger' }
-      : { label: 'User', severity: 'info' };
+      ? { label: this.translate.instant('USERS.ROLE_ADMIN'), severity: 'danger' }
+      : { label: this.translate.instant('USERS.ROLE_USER'), severity: 'info' };
   }
 
   getStatusTag(active: boolean): { label: string; severity: 'success' | 'warn' } {
     return active
-      ? { label: 'Active', severity: 'success' }
-      : { label: 'Inactive', severity: 'warn' };
+      ? { label: this.translate.instant('USERS.STATUS_ACTIVE'), severity: 'success' }
+      : { label: this.translate.instant('USERS.STATUS_INACTIVE'), severity: 'warn' };
   }
 
   formatDate(date: string | null): string {

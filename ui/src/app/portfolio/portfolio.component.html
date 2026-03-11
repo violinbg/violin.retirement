@@ -3,7 +3,7 @@
 
 <div class="portfolio">
   <vr-app-header
-    title="Portfolio Tracking"
+    titleKey="PORTFOLIO.TITLE"
     logoIcon="pi pi-chart-line"
     [leftAction]="headerLeftAction"
     [username]="auth.currentUser()?.full_name ?? null"
@@ -17,16 +17,16 @@
     @if (accounts().length > 0) {
       <div class="summary-bar">
         <div class="summary-bar__stat">
-          <span class="summary-bar__label">Total Portfolio Value</span>
+          <span class="summary-bar__label">{{ 'PORTFOLIO.TOTAL_VALUE' | translate }}</span>
           <span class="summary-bar__value">{{ formatCurrency(totalValue) }}</span>
         </div>
         <div class="summary-bar__stat">
-          <span class="summary-bar__label">Accounts</span>
+          <span class="summary-bar__label">{{ 'PORTFOLIO.ACCOUNTS_COUNT' | translate }}</span>
           <span class="summary-bar__value">{{ accounts().length }}</span>
         </div>
         <div class="summary-bar__actions">
           <p-button
-            label="Add Account"
+            [label]="'PORTFOLIO.ADD_ACCOUNT' | translate"
             icon="pi pi-plus"
             size="small"
             (onClick)="openAddDialog()"
@@ -48,12 +48,12 @@
           >
             <ng-template pTemplate="header">
               <tr>
-                <th>Account</th>
-                <th>Type</th>
-                <th>Asset Class</th>
-                <th class="text-right">Current Value</th>
-                <th class="text-right">Est. Return</th>
-                <th class="text-right">Updated</th>
+                <th>{{ 'PORTFOLIO.TABLE_ACCOUNT' | translate }}</th>
+                <th>{{ 'PORTFOLIO.TABLE_TYPE' | translate }}</th>
+                <th>{{ 'PORTFOLIO.TABLE_ASSET_CLASS' | translate }}</th>
+                <th class="text-right">{{ 'PORTFOLIO.TABLE_CURRENT_VALUE' | translate }}</th>
+                <th class="text-right">{{ 'PORTFOLIO.TABLE_EST_RETURN' | translate }}</th>
+                <th class="text-right">{{ 'PORTFOLIO.TABLE_UPDATED' | translate }}</th>
                 <th></th>
               </tr>
             </ng-template>
@@ -84,7 +84,7 @@
                     [text]="true"
                     size="small"
                     severity="secondary"
-                    pTooltip="View history"
+                    [pTooltip]="'PORTFOLIO.TOOLTIP_HISTORY' | translate"
                     tooltipPosition="top"
                     (onClick)="openHistory(account)"
                   />
@@ -93,7 +93,7 @@
                     [text]="true"
                     size="small"
                     severity="secondary"
-                    pTooltip="Edit account"
+                    [pTooltip]="'PORTFOLIO.TOOLTIP_EDIT' | translate"
                     tooltipPosition="top"
                     (onClick)="openEditDialog(account)"
                   />
@@ -102,7 +102,7 @@
                     [text]="true"
                     size="small"
                     severity="danger"
-                    pTooltip="Delete account"
+                    [pTooltip]="'PORTFOLIO.TOOLTIP_DELETE' | translate"
                     tooltipPosition="top"
                     (onClick)="deleteAccount(account)"
                   />
@@ -112,7 +112,7 @@
 
             <ng-template pTemplate="footer">
               <tr class="totals-row">
-                <td colspan="3"><strong>Total</strong></td>
+                <td colspan="3"><strong>{{ 'PORTFOLIO.TABLE_TOTAL' | translate }}</strong></td>
                 <td class="text-right"><strong>{{ formatCurrency(totalValue) }}</strong></td>
                 <td colspan="3"></td>
               </tr>
@@ -124,12 +124,12 @@
         <!-- Empty state -->
         <div class="empty-state">
           <i class="pi pi-chart-line empty-state__icon"></i>
-          <h2 class="empty-state__title">No accounts yet</h2>
+          <h2 class="empty-state__title">{{ 'PORTFOLIO.EMPTY_TITLE' | translate }}</h2>
           <p class="empty-state__subtitle">
-            Add your first investment account to start tracking your portfolio.
+            {{ 'PORTFOLIO.EMPTY_SUBTITLE' | translate }}
           </p>
           <p-button
-            label="Add Your First Account"
+            [label]="'PORTFOLIO.EMPTY_CTA' | translate"
             icon="pi pi-plus"
             size="large"
             (onClick)="openAddDialog()"
@@ -139,7 +139,7 @@
     } @else {
       <div class="loading-state">
         <i class="pi pi-spin pi-spinner loading-state__icon"></i>
-        <p>Loading accounts…</p>
+        <p>{{ 'PORTFOLIO.LOADING' | translate }}</p>
       </div>
     }
 

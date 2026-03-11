@@ -15,6 +15,7 @@ import {
   ACCOUNT_TYPES,
   ASSET_CLASSES,
 } from '../../core/services/portfolio.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-account-dialog',
@@ -28,6 +29,7 @@ import {
     SelectModule,
     TextareaModule,
     TooltipModule,
+    TranslatePipe,
   ],
   templateUrl: './account-dialog.component.html',
   styleUrl: './account-dialog.component.scss',
@@ -35,6 +37,7 @@ import {
 export class AccountDialogComponent implements OnChanges {
   private readonly portfolioSvc = inject(PortfolioService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
   @Input() visible = false;
   @Input() account: PortfolioAccount | null = null;
@@ -59,7 +62,9 @@ export class AccountDialogComponent implements OnChanges {
   }
 
   get header(): string {
-    return this.isEditMode ? 'Edit Account' : 'Add Account';
+    return this.isEditMode
+      ? this.translate.instant('ACCOUNT_DIALOG.HEADER_EDIT')
+      : this.translate.instant('ACCOUNT_DIALOG.HEADER_ADD');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -111,10 +116,8 @@ export class AccountDialogComponent implements OnChanges {
     if (result) {
       this.messageService.add({
         severity: 'success',
-        summary: this.isEditMode ? 'Account Updated' : 'Account Added',
-        detail: this.isEditMode
-          ? `${payload.name} has been updated.`
-          : `${payload.name} has been added.`,
+        summary: this.translate.instant(this.isEditMode ? 'ACCOUNT_DIALOG.TOAST_UPDATED_TITLE' : 'ACCOUNT_DIALOG.TOAST_ADDED_TITLE'),
+        detail: this.translate.instant(this.isEditMode ? 'ACCOUNT_DIALOG.TOAST_UPDATED_DETAIL' : 'ACCOUNT_DIALOG.TOAST_ADDED_DETAIL', { name: payload.name }),
         life: 3000,
       });
       this.close();
@@ -123,7 +126,7 @@ export class AccountDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to save account. Please try again.',
+        detail: this.translate.instant('ACCOUNT_DIALOG.TOAST_ERROR_DETAIL'),
         life: 4000,
       });
     }

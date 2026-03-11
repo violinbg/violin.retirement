@@ -1,5 +1,5 @@
 <p-dialog
-  header="Sign In"
+  [header]="'AUTH.LOGIN.TITLE' | translate"
   [(visible)]="visible"
   [modal]="true"
   [draggable]="false"
@@ -13,13 +13,13 @@
     }
 
     <div class="field">
-      <label for="loginUsername">Username</label>
+      <label for="loginUsername">{{ 'AUTH.LOGIN.USERNAME' | translate }}</label>
       <input
         pInputText
         id="loginUsername"
         [(ngModel)]="username"
         name="username"
-        placeholder="Enter username"
+        [placeholder]="'AUTH.LOGIN.USERNAME_PLACEHOLDER' | translate"
         required
         class="w-full"
         autocomplete="username"
@@ -27,12 +27,12 @@
     </div>
 
     <div class="field">
-      <label for="loginPassword">Password</label>
+      <label for="loginPassword">{{ 'AUTH.LOGIN.PASSWORD' | translate }}</label>
       <p-password
         inputId="loginPassword"
         [(ngModel)]="password"
         name="password"
-        placeholder="Enter password"
+        [placeholder]="'AUTH.LOGIN.PASSWORD_PLACEHOLDER' | translate"
         [toggleMask]="true"
         [feedback]="false"
         styleClass="w-full"
@@ -43,7 +43,7 @@
 
     <p-button
       type="submit"
-      label="Sign In"
+      [label]="'AUTH.LOGIN.SUBMIT' | translate"
       icon="pi pi-sign-in"
       iconPos="right"
       styleClass="w-full mt-2"
@@ -53,8 +53,8 @@
 
     @if (auth.registrationEnabled()) {
       <div class="register-link">
-        Don't have an account?
-        <a href="#" (click)="$event.preventDefault(); openRegister()">Register</a>
+        {{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }}
+        <a href="#" (click)="$event.preventDefault(); openRegister()">{{ 'AUTH.LOGIN.REGISTER_LINK' | translate }}</a>
       </div>
     }
   </form>

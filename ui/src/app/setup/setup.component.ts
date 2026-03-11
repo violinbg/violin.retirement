@@ -8,11 +8,12 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { AuthService } from '../core/services/auth.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-setup',
   standalone: true,
-  imports: [FormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
+  imports: [FormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule, TranslatePipe],
   templateUrl: './setup.component.html',
   styleUrl: './setup.component.scss'
 })
@@ -20,6 +21,7 @@ export class SetupComponent {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   username = '';
   fullName = '';
@@ -52,7 +54,7 @@ export class SetupComponent {
       this.auth.isInitialized.set(true);
       this.router.navigate(['/']);
     } catch (err: any) {
-      this.error.set(err?.error?.error ?? 'Setup failed. Please try again.');
+      this.error.set(err?.error?.error ?? this.translate.instant('SETUP.ERROR'));
     } finally {
       this.loading.set(false);
     }

@@ -1,6 +1,6 @@
 <div class="dashboard">
   <vr-app-header
-    title="Violin Retirement"
+    titleKey="APP.TITLE"
     logoIcon="pi pi-chart-line"
     [username]="auth.currentUser()?.full_name ?? null"
     [actions]="headerActions"
@@ -11,13 +11,13 @@
 
     <!-- Greeting -->
     <div class="greeting">
-      <h1 class="greeting__title">Welcome back, {{ auth.currentUser()?.full_name }}!</h1>
-      <p class="greeting__subtitle">Here's an overview of your retirement progress.</p>
+      <h1 class="greeting__title">{{ 'DASHBOARD.GREETING' | translate:{name: auth.currentUser()?.full_name} }}</h1>
+      <p class="greeting__subtitle">{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
     </div>
 
     @if (loading()) {
       <div class="dash-loading">
-        <i class="pi pi-spin pi-spinner"></i> Loading your dashboard…
+        <i class="pi pi-spin pi-spinner"></i> {{ 'DASHBOARD.LOADING' | translate }}
       </div>
     } @else {
 
@@ -28,10 +28,10 @@
         <p-card styleClass="dash-card dash-card--summary">
           <div class="card-header">
             <span class="card-header__title">
-              <i class="pi pi-chart-line"></i> Portfolio Value
+              <i class="pi pi-chart-line"></i> {{ 'DASHBOARD.PORTFOLIO_VALUE' | translate }}
             </span>
             <p-button
-              label="Manage"
+              [label]="'DASHBOARD.MANAGE' | translate"
               icon="pi pi-arrow-right"
               iconPos="right"
               [text]="true"
@@ -47,8 +47,8 @@
             </div>
           } @else {
             <div class="empty-prompt">
-              <p>No accounts tracked yet.</p>
-              <p-button label="Add Account" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
+              <p>{{ 'DASHBOARD.NO_ACCOUNTS' | translate }}</p>
+              <p-button [label]="'DASHBOARD.ADD_ACCOUNT' | translate" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
             </div>
           }
         </p-card>
@@ -57,10 +57,10 @@
         <p-card styleClass="dash-card dash-card--fire">
           <div class="card-header">
             <span class="card-header__title">
-              <i class="pi pi-bolt"></i> FIRE Progress
+              <i class="pi pi-bolt"></i> {{ 'DASHBOARD.FIRE_PROGRESS' | translate }}
             </span>
             <p-button
-              label="Calculator"
+              [label]="'DASHBOARD.CALCULATOR' | translate"
               icon="pi pi-arrow-right"
               iconPos="right"
               [text]="true"
@@ -81,12 +81,12 @@
                 [showValue]="false"
                 styleClass="fire-progress__bar"
               />
-              <div class="fire-progress__pct">{{ fireProgressPercent }}% of FIRE number</div>
+              <div class="fire-progress__pct">{{ fireProgressPercent }}{{ 'DASHBOARD.FIRE_PERCENT' | translate }}</div>
             </div>
           } @else {
             <div class="empty-prompt">
-              <p>Set up your FIRE calculator to track progress.</p>
-              <p-button label="Open Calculator" icon="pi pi-calculator" size="small" (onClick)="navigateTo('/calculator')" />
+              <p>{{ 'DASHBOARD.FIRE_SETUP_PROMPT' | translate }}</p>
+              <p-button [label]="'DASHBOARD.OPEN_CALCULATOR' | translate" icon="pi pi-calculator" size="small" (onClick)="navigateTo('/calculator')" />
             </div>
           }
         </p-card>
@@ -100,7 +100,7 @@
         <p-card styleClass="dash-card dash-card--allocation">
           <div class="card-header">
             <span class="card-header__title">
-              <i class="pi pi-chart-pie"></i> Asset Allocation
+              <i class="pi pi-chart-pie"></i> {{ 'DASHBOARD.ASSET_ALLOCATION' | translate }}
             </span>
           </div>
 
@@ -116,7 +116,7 @@
           } @else {
             <div class="empty-prompt empty-prompt--chart">
               <i class="pi pi-chart-pie empty-icon"></i>
-              <p>Add accounts to see allocation breakdown.</p>
+              <p>{{ 'DASHBOARD.ADD_FOR_ALLOCATION' | translate }}</p>
             </div>
           }
         </p-card>
@@ -125,10 +125,10 @@
         <p-card styleClass="dash-card dash-card--accounts">
           <div class="card-header">
             <span class="card-header__title">
-              <i class="pi pi-list"></i> Accounts
+              <i class="pi pi-list"></i> {{ 'DASHBOARD.ACCOUNTS' | translate }}
             </span>
             <p-button
-              label="View All"
+              [label]="'DASHBOARD.VIEW_ALL' | translate"
               icon="pi pi-arrow-right"
               iconPos="right"
               [text]="true"
@@ -159,13 +159,13 @@
               </ng-template>
             </p-table>
             <div class="accounts-total">
-              <strong>Total</strong>
+              <strong>{{ 'DASHBOARD.TOTAL' | translate }}</strong>
               <strong>{{ formatCurrency(totalPortfolioValue) }}</strong>
             </div>
           } @else {
             <div class="empty-prompt">
-              <p>No accounts yet.</p>
-              <p-button label="Add Account" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
+              <p>{{ 'DASHBOARD.NO_ACCOUNTS_YET' | translate }}</p>
+              <p-button [label]="'DASHBOARD.ADD_ACCOUNT' | translate" icon="pi pi-plus" size="small" (onClick)="navigateTo('/portfolio')" />
             </div>
           }
         </p-card>
@@ -178,8 +178,8 @@
           (keydown.enter)="navigateTo('/portfolio')" (keydown.space)="navigateTo('/portfolio')">
           <i class="pi pi-chart-line quick-link__icon"></i>
           <div>
-            <div class="quick-link__title">Portfolio Tracking</div>
-            <div class="quick-link__desc">Manage accounts & view history</div>
+            <div class="quick-link__title">{{ 'DASHBOARD.QUICK_PORTFOLIO_TITLE' | translate }}</div>
+            <div class="quick-link__desc">{{ 'DASHBOARD.QUICK_PORTFOLIO_DESC' | translate }}</div>
           </div>
           <i class="pi pi-arrow-right quick-link__arrow"></i>
         </div>
@@ -188,8 +188,8 @@
           (keydown.enter)="navigateTo('/calculator')" (keydown.space)="navigateTo('/calculator')">
           <i class="pi pi-calculator quick-link__icon"></i>
           <div>
-            <div class="quick-link__title">FIRE Calculator</div>
-            <div class="quick-link__desc">Model your path to financial independence</div>
+            <div class="quick-link__title">{{ 'DASHBOARD.QUICK_CALCULATOR_TITLE' | translate }}</div>
+            <div class="quick-link__desc">{{ 'DASHBOARD.QUICK_CALCULATOR_DESC' | translate }}</div>
           </div>
           <i class="pi pi-arrow-right quick-link__arrow"></i>
         </div>
@@ -199,8 +199,8 @@
             (keydown.enter)="navigateTo('/users')" (keydown.space)="navigateTo('/users')">
             <i class="pi pi-users quick-link__icon"></i>
             <div>
-              <div class="quick-link__title">User Management</div>
-              <div class="quick-link__desc">Manage application users</div>
+              <div class="quick-link__title">{{ 'DASHBOARD.QUICK_USERS_TITLE' | translate }}</div>
+              <div class="quick-link__desc">{{ 'DASHBOARD.QUICK_USERS_DESC' | translate }}</div>
             </div>
             <i class="pi pi-arrow-right quick-link__arrow"></i>
           </div>

@@ -4,16 +4,18 @@ import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { PortfolioService, PortfolioAccount, PortfolioAccountHistory } from '../../core/services/portfolio.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-account-history-dialog',
   standalone: true,
-  imports: [ButtonModule, DialogModule, TableModule],
+  imports: [ButtonModule, DialogModule, TableModule, TranslatePipe],
   templateUrl: './account-history-dialog.component.html',
   styleUrl: './account-history-dialog.component.scss',
 })
 export class AccountHistoryDialogComponent implements OnChanges {
   private readonly portfolioSvc = inject(PortfolioService);
+  private readonly translate = inject(TranslateService);
 
   @Input() visible = false;
   @Input() account: PortfolioAccount | null = null;
@@ -24,7 +26,7 @@ export class AccountHistoryDialogComponent implements OnChanges {
   loading = signal(false);
 
   get header(): string {
-    return `History — ${this.account?.name ?? ''}`;
+    return this.translate.instant('HISTORY_DIALOG.HEADER', { name: this.account?.name ?? '' });
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {

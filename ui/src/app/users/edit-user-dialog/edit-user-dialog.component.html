@@ -1,5 +1,5 @@
 <p-dialog
-  header="Edit User"
+  [header]="'EDIT_USER_DIALOG.HEADER' | translate"
   [visible]="visible"
   (visibleChange)="visibleChange.emit($event)"
   [modal]="true"
@@ -7,10 +7,10 @@
   [closable]="true"
 >
   <div class="dialog-form" *ngIf="user">
-    <p class="user-info">Editing: <strong>{{ user.username }}</strong></p>
+    <p class="user-info">{{ 'EDIT_USER_DIALOG.EDITING' | translate:{username: user.username} }}</p>
 
     <div class="form-field">
-      <label for="eu-fullName">Full Name</label>
+      <label for="eu-fullName">{{ 'EDIT_USER_DIALOG.FULL_NAME' | translate }}</label>
       <input
         pInputText
         id="eu-fullName"
@@ -20,12 +20,12 @@
         type="text"
       />
       <small class="error" *ngIf="form.get('full_name')?.invalid && form.get('full_name')?.touched">
-        Full Name is required
+        {{ 'EDIT_USER_DIALOG.FULL_NAME_ERROR' | translate }}
       </small>
     </div>
 
     <div class="form-field">
-      <label for="eu-role">Role</label>
+      <label for="eu-role">{{ 'EDIT_USER_DIALOG.ROLE' | translate }}</label>
       <p-select
         inputId="eu-role"
         [options]="roles"
@@ -38,12 +38,12 @@
         appendTo="body"
       />
       @if (isSelf) {
-        <small class="text-muted">You cannot change your own role</small>
+        <small class="text-muted">{{ 'EDIT_USER_DIALOG.ROLE_DISABLED_NOTE' | translate }}</small>
       }
     </div>
 
     <div class="form-field">
-      <label for="eu-password">Password (leave blank to keep current)</label>
+      <label for="eu-password">{{ 'EDIT_USER_DIALOG.PASSWORD' | translate }}</label>
       <input
         pInputText
         id="eu-password"
@@ -51,23 +51,23 @@
         (ngModelChange)="form.get('password')?.setValue($event)"
         class="w-full"
         type="password"
-        placeholder="Leave blank to keep current password"
+        [placeholder]="'EDIT_USER_DIALOG.PASSWORD_PLACEHOLDER' | translate"
       />
       <small class="error" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
-        Password must be at least 8 characters
+        {{ 'EDIT_USER_DIALOG.PASSWORD_ERROR' | translate }}
       </small>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Cancel"
+      [label]="'EDIT_USER_DIALOG.CANCEL' | translate"
       icon="pi pi-times"
       [text]="true"
       (onClick)="close()"
     />
     <p-button
-      label="Update"
+      [label]="'EDIT_USER_DIALOG.UPDATE' | translate"
       icon="pi pi-check"
       [disabled]="!form.valid"
       (onClick)="update()"

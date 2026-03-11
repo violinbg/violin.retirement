@@ -1,7 +1,7 @@
 <p-toast position="bottom-right" />
 <div class="calculator">
   <vr-app-header
-    title="FIRE Calculator"
+    titleKey="CALCULATOR.TITLE"
     logoIcon="pi pi-calculator"
     [leftAction]="headerLeftAction"
     [actions]="headerActions"
@@ -13,10 +13,10 @@
     <!-- ── Left: inputs ─────────────────────────────────────────────── -->
     <aside class="inputs-panel">
       <p-card>
-        <ng-template pTemplate="title">Your Numbers</ng-template>
+        <ng-template pTemplate="title">{{ 'CALCULATOR.YOUR_NUMBERS' | translate }}</ng-template>
 
         <div class="input-group">
-          <label>Current Age</label>
+          <label>{{ 'CALCULATOR.CURRENT_AGE' | translate }}</label>
           <div class="input-row">
             <p-inputnumber
               [(ngModel)]="currentAge"
@@ -36,7 +36,7 @@
         <p-divider />
 
         <div class="input-group">
-          <label>Current Portfolio</label>
+          <label>{{ 'CALCULATOR.CURRENT_PORTFOLIO' | translate }}</label>
           <div class="input-row">
             <p-inputnumber
               [(ngModel)]="currentPortfolio"
@@ -56,7 +56,7 @@
         <p-divider />
 
         <div class="input-group">
-          <label>Annual Income</label>
+          <label>{{ 'CALCULATOR.ANNUAL_INCOME' | translate }}</label>
           <div class="input-row">
             <p-inputnumber
               [(ngModel)]="annualIncome"
@@ -76,7 +76,7 @@
         <p-divider />
 
         <div class="input-group">
-          <label>Annual Expenses</label>
+          <label>{{ 'CALCULATOR.ANNUAL_EXPENSES' | translate }}</label>
           <div class="input-row">
             <p-inputnumber
               [(ngModel)]="annualExpenses"
@@ -97,9 +97,9 @@
 
         <div class="input-group">
           <label>
-            Retirement Annual Spending
+            {{ 'CALCULATOR.RETIREMENT_SPENDING' | translate }}
             <i class="pi pi-info-circle"
-               pTooltip="How much you plan to spend per year in retirement"
+               [pTooltip]="'CALCULATOR.RETIREMENT_SPENDING_TOOLTIP' | translate"
                tooltipPosition="right"></i>
           </label>
           <div class="input-row">
@@ -122,9 +122,9 @@
 
         <div class="input-group">
           <label>
-            Expected Real Return
+            {{ 'CALCULATOR.EXPECTED_RETURN' | translate }}
             <i class="pi pi-info-circle"
-               pTooltip="Annual investment return after inflation (7% is a common stock market estimate)"
+               [pTooltip]="'CALCULATOR.EXPECTED_RETURN_TOOLTIP' | translate"
                tooltipPosition="right"></i>
           </label>
           <div class="input-row">
@@ -148,9 +148,9 @@
 
         <div class="input-group">
           <label>
-            Safe Withdrawal Rate
+            {{ 'CALCULATOR.WITHDRAWAL_RATE' | translate }}
             <i class="pi pi-info-circle"
-               pTooltip="The annual percentage of your portfolio you'll withdraw. The classic '4% rule' comes from the Trinity Study."
+               [pTooltip]="'CALCULATOR.WITHDRAWAL_RATE_TOOLTIP' | translate"
                tooltipPosition="right"></i>
           </label>
           <div class="input-row">
@@ -179,39 +179,39 @@
       <!-- Result cards row -->
       <div class="result-cards">
         <div class="result-card result-card--primary">
-          <span class="result-card__label">FIRE Number</span>
+          <span class="result-card__label">{{ 'CALCULATOR.FIRE_NUMBER_LABEL' | translate }}</span>
           <span class="result-card__value">{{ formatCurrency(fireNumber()) }}</span>
-          <span class="result-card__sub">Your nest egg target</span>
+          <span class="result-card__sub">{{ 'CALCULATOR.FIRE_NUMBER_SUB' | translate }}</span>
         </div>
 
         <div class="result-card">
-          <span class="result-card__label">Savings Rate</span>
+          <span class="result-card__label">{{ 'CALCULATOR.SAVINGS_RATE_LABEL' | translate }}</span>
           <span class="result-card__value">{{ savingsRate() | number:'1.0-1' }}%</span>
-          <span class="result-card__sub">{{ formatCurrency(annualSavings()) }} / yr saved</span>
+          <span class="result-card__sub">{{ formatCurrency(annualSavings()) }} {{ 'CALCULATOR.SAVINGS_RATE_SUB' | translate }}</span>
         </div>
 
         <div class="result-card">
-          <span class="result-card__label">Years to FIRE</span>
+          <span class="result-card__label">{{ 'CALCULATOR.YEARS_TO_FIRE_LABEL' | translate }}</span>
           @if (isFinite(yearsToFire())) {
             <span class="result-card__value">{{ yearsToFire() | number:'1.0-1' }}</span>
-            <span class="result-card__sub">years remaining</span>
+            <span class="result-card__sub">{{ 'CALCULATOR.YEARS_TO_FIRE_SUB' | translate }}</span>
           } @else {
             <span class="result-card__value result-card__value--warn">∞</span>
-            <span class="result-card__sub">increase savings rate</span>
+            <span class="result-card__sub">{{ 'CALCULATOR.YEARS_TO_FIRE_INFINITE_SUB' | translate }}</span>
           }
         </div>
 
         <div class="result-card">
-          <span class="result-card__label">FI Date</span>
+          <span class="result-card__label">{{ 'CALCULATOR.FI_DATE_LABEL' | translate }}</span>
           @if (fiAge()) {
-            <span class="result-card__value">Age {{ fiAge() }}</span>
+            <span class="result-card__value">{{ 'CALCULATOR.FI_DATE_AGE' | translate:{age: fiAge()} }}</span>
             <span class="result-card__sub">{{ fiYear() }}</span>
           } @else if (currentPortfolio() >= fireNumber()) {
-            <span class="result-card__value result-card__value--success">Now! 🎉</span>
-            <span class="result-card__sub">You've reached FIRE</span>
+            <span class="result-card__value result-card__value--success">{{ 'CALCULATOR.FI_DATE_NOW' | translate }}</span>
+            <span class="result-card__sub">{{ 'CALCULATOR.FI_DATE_NOW_SUB' | translate }}</span>
           } @else {
-            <span class="result-card__value result-card__value--warn">—</span>
-            <span class="result-card__sub">adjust your inputs</span>
+            <span class="result-card__value result-card__value--warn">{{ 'CALCULATOR.FI_DATE_UNKNOWN' | translate }}</span>
+            <span class="result-card__sub">{{ 'CALCULATOR.FI_DATE_UNKNOWN_SUB' | translate }}</span>
           }
         </div>
       </div>
@@ -219,7 +219,7 @@
       <!-- Chart -->
       @if (chartData) {
         <p-card styleClass="chart-card">
-          <ng-template pTemplate="title">Portfolio Growth Projection</ng-template>
+          <ng-template pTemplate="title">{{ 'CALCULATOR.CHART_TITLE' | translate }}</ng-template>
           <div class="chart-container">
             <p-chart class="chart-container__chart" type="line" [data]="chartData" [options]="chartOptions" />
           </div>
@@ -229,9 +229,7 @@
       <!-- Disclaimer -->
       <p class="disclaimer">
         <i class="pi pi-info-circle"></i>
-        This calculator provides estimates for educational purposes only. It assumes constant
-        returns and does not account for taxes, inflation variability, or sequence-of-returns risk.
-        Consult a financial advisor before making investment decisions.
+        {{ 'CALCULATOR.DISCLAIMER' | translate }}
       </p>
     </main>
   </div>

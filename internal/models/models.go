@@ -11,6 +11,7 @@ type User struct {
 	PasswordHash string
 	Role         string
 	Active       bool
+	Language     string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	LastLogin    *time.Time

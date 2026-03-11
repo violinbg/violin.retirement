@@ -15,6 +15,7 @@ import { AuthService } from '../core/services/auth.service';
 import { FireCalculatorService } from '../core/services/fire-calculator.service';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 const DEFAULTS = {
   currentAge: 30,
@@ -28,12 +29,12 @@ const DEFAULTS = {
 
 const headerLeftAction = {
   id: 'back',
-  label: 'Back',
+  labelKey: 'HEADER.BACK',
   icon: 'pi pi-arrow-left',
   severity: 'secondary',
   outlined: true,
   size: 'small',
-  tooltip: 'Back',
+  tooltipKey: 'HEADER.BACK',
 } as AppHeaderAction;
 
 @Component({
@@ -50,6 +51,7 @@ const headerLeftAction = {
     TooltipModule,
     ToastModule,
     AppHeaderComponent,
+    TranslatePipe,
   ],
   providers: [MessageService],
   templateUrl: './fire-calculator.component.html',
@@ -60,6 +62,7 @@ export class FireCalculatorComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly fireService = inject(FireCalculatorService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
   readonly headerLeftAction = headerLeftAction;
 
   // ── Inputs ──────────────────────────────────────────────────────────────
@@ -135,20 +138,20 @@ export class FireCalculatorComponent implements OnInit {
     return [
       {
         id: 'defaults',
-        label: 'Defaults',
+        labelKey: 'CALCULATOR.BTN_DEFAULTS',
         icon: 'pi pi-refresh',
         severity: 'secondary',
         outlined: true,
         size: 'small',
-        tooltip: 'Reset to default values',
+        tooltipKey: 'CALCULATOR.RESET_TOOLTIP',
       } as AppHeaderAction,
       {
         id: 'save',
-        label: 'Save',
+        labelKey: 'CALCULATOR.BTN_SAVE',
         icon: 'pi pi-save',
         size: 'small',
         loading: this.isSaving(),
-        tooltip: 'Save your settings',
+        tooltipKey: 'CALCULATOR.SAVE_TOOLTIP',
       } as AppHeaderAction,
     ];
   }
@@ -210,7 +213,7 @@ export class FireCalculatorComponent implements OnInit {
       labels,
       datasets: [
         {
-          label: 'Portfolio Value',
+          label: this.translate.instant('CALCULATOR.CHART_DATASET_PORTFOLIO'),
           data: portfolioValues,
           fill: true,
           backgroundColor: primaryColor + '22',
@@ -221,7 +224,7 @@ export class FireCalculatorComponent implements OnInit {
           pointHoverRadius: 4,
         },
         {
-          label: 'FIRE Target',
+          label: this.translate.instant('CALCULATOR.CHART_DATASET_TARGET'),
           data: fireTargetValues,
           fill: false,
           borderColor: successColor,
@@ -299,9 +302,9 @@ export class FireCalculatorComponent implements OnInit {
     }));
     this.isSaving.set(false);
     if (ok) {
-      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Your FIRE settings have been saved.' });
+      this.messageService.add({ severity: 'success', summary: this.translate.instant('CALCULATOR.TOAST_SAVED_TITLE'), detail: this.translate.instant('CALCULATOR.TOAST_SAVED_DETAIL') });
     } else {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not save settings. Please try again.' });
+      this.messageService.add({ severity: 'error', summary: this.translate.instant('CALCULATOR.TOAST_ERROR_TITLE'), detail: this.translate.instant('CALCULATOR.TOAST_ERROR_DETAIL') });
     }
   }
 
@@ -314,7 +317,7 @@ export class FireCalculatorComponent implements OnInit {
     this.withdrawalRate.set(DEFAULTS.withdrawalRate);
     this.retirementSpending.set(DEFAULTS.retirementSpending);
     this.buildChart();
-    this.messageService.add({ severity: 'info', summary: 'Reset', detail: 'Calculator reset to defaults.' });
+    this.messageService.add({ severity: 'info', summary: this.translate.instant('CALCULATOR.TOAST_RESET_TITLE'), detail: this.translate.instant('CALCULATOR.TOAST_RESET_DETAIL') });
   }
 
   onHeaderAction(actionId: string): void {

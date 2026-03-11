@@ -6,11 +6,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { UserService, CreateUserRequest } from '../../core/services/user.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-create-user-dialog',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule],
+  imports: [FormsModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule, TranslatePipe],
   templateUrl: './create-user-dialog.component.html',
   styleUrl: './create-user-dialog.component.scss',
 })
@@ -18,6 +19,7 @@ export class CreateUserDialogComponent implements OnChanges {
   private readonly userSvc = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   @Input() visible = false;
 
@@ -31,10 +33,12 @@ export class CreateUserDialogComponent implements OnChanges {
     role: ['user', Validators.required],
   });
 
-  readonly roles = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'User', value: 'user' },
-  ];
+  get roles() {
+    return [
+      { label: this.translate.instant('CREATE_USER_DIALOG.ROLE_ADMIN'), value: 'admin' },
+      { label: this.translate.instant('CREATE_USER_DIALOG.ROLE_USER'), value: 'user' },
+    ];
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']?.currentValue === true) {
@@ -61,7 +65,7 @@ export class CreateUserDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: `User "${req.username}" created successfully`,
+        detail: this.translate.instant('CREATE_USER_DIALOG.TOAST_SUCCESS', { username: req.username }),
       });
       this.close();
       this.created.emit();
@@ -69,7 +73,7 @@ export class CreateUserDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: error?.error?.error || 'Failed to create user',
+        detail: error?.error?.error || this.translate.instant('CREATE_USER_DIALOG.TOAST_ERROR'),
       });
     }
   }

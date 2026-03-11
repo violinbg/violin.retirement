@@ -14,6 +14,7 @@ import { FireCalculatorService, FireSettings } from '../core/services/fire-calcu
 import { PortfolioService, PortfolioAccount, ASSET_CLASSES } from '../core/services/portfolio.service';
 import { AppHeaderComponent } from '../shared/components/app-header/app-header.component';
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-dashboard',
@@ -28,6 +29,7 @@ import { AppHeaderAction } from '../shared/components/app-header/app-header.mode
     TagModule,
     TooltipModule,
     AppHeaderComponent,
+    TranslatePipe,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -45,7 +47,7 @@ export class DashboardComponent implements OnInit {
   readonly headerActions: AppHeaderAction[] = [
     {
       id: 'logout',
-      label: 'Sign Out',
+      labelKey: 'HEADER.SIGN_OUT',
       icon: 'pi pi-sign-out',
       severity: 'secondary',
       outlined: true,

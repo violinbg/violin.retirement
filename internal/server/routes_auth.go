@@ -50,7 +50,8 @@ func registerAuthRoutes(api *gin.RouterGroup, protected *gin.RouterGroup, db *sq
 	api.POST("/auth/register", handleRegister(db, cs))
 	api.POST("/auth/refresh", handleRefresh(db))
 	api.POST("/auth/logout", handleLogout(db))
-	protected.GET("/auth/me", handleMe())
+	protected.GET("/auth/me", handleMe(db))
+	protected.PATCH("/profile/language", handleUpdateLanguage(db))
 }
 
 // jwtSecret fetches the jwt_secret from app_config, returning "" on any error.
@@ -129,9 +130,9 @@ func handleLogin(db *sql.DB) gin.HandlerFunc {
 
 		var u models.User
 		err := db.QueryRow(
-			"SELECT id, username, full_name, password_hash, role, active FROM users WHERE username = ?",
+			"SELECT id, username, full_name, password_hash, role, active, language FROM users WHERE username = ?",
 			req.Username,
-		).Scan(&u.ID, &u.Username, &u.FullName, &u.PasswordHash, &u.Role, &u.Active)
+		).Scan(&u.ID, &u.Username, &u.FullName, &u.PasswordHash, &u.Role, &u.Active, &u.Language)
 		if err == sql.ErrNoRows || !auth.Check(u.PasswordHash, req.Password) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
@@ -167,18 +168,25 @@ func handleLogin(db *sql.DB) gin.HandlerFunc {
 				"username":  u.Username,
 				"full_name": u.FullName,
 				"role":      u.Role,
+				"language":  u.Language,
 			},
 		})
 	}
 }
 
-func handleMe() gin.HandlerFunc {
+func handleMe(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		userID := c.GetString(contextKeyUserID)
+		var language string
+		if err := db.QueryRow("SELECT language FROM users WHERE id = ?", userID).Scan(&language); err != nil {
+			language = "en"
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"id":        c.GetString(contextKeyUserID),
+			"id":        userID,
 			"username":  c.GetString(contextKeyUsername),
 			"full_name": c.GetString(contextKeyFullName),
 			"role":      c.GetString(contextKeyRole),
+			"language":  language,
 		})
 	}
 }
@@ -380,7 +388,37 @@ func handleRegister(db *sql.DB, cs *captcha.Store) gin.HandlerFunc {
 				"username":  req.Username,
 				"full_name": req.FullName,
 				"role":      "user",
+				"language":  "en",
 			},
 		})
+	}
+}
+
+func handleUpdateLanguage(db *sql.DB) gin.HandlerFunc {
+	type request struct {
+		Language string `json:"language" binding:"required"`
+	}
+
+	supported := map[string]bool{"en": true, "bg": true, "es": true, "ja": true, "ko": true, "zh": true}
+
+	return func(c *gin.Context) {
+		var req request
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		if !supported[req.Language] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported language"})
+			return
+		}
+
+		userID := c.GetString(contextKeyUserID)
+		if _, err := db.Exec("UPDATE users SET language = ? WHERE id = ?", req.Language, userID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+			return
+		}
+
+		c.Status(http.StatusNoContent)
 	}
 }

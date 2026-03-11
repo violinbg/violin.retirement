@@ -16,6 +16,7 @@ import { AppHeaderComponent } from '../shared/components/app-header/app-header.c
 import { AppHeaderAction } from '../shared/components/app-header/app-header.models';
 import { AccountDialogComponent } from './account-dialog/account-dialog.component';
 import { AccountHistoryDialogComponent } from './account-history-dialog/account-history-dialog.component';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-portfolio',
@@ -32,6 +33,7 @@ import { AccountHistoryDialogComponent } from './account-history-dialog/account-
     AppHeaderComponent,
     AccountDialogComponent,
     AccountHistoryDialogComponent,
+    TranslatePipe,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './portfolio.component.html',
@@ -42,6 +44,7 @@ export class PortfolioComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   accounts = signal<PortfolioAccount[]>([]);
   loading = signal(true);
@@ -54,7 +57,7 @@ export class PortfolioComponent implements OnInit {
 
   readonly headerLeftAction: AppHeaderAction = {
     id: 'back',
-    label: 'Back',
+    labelKey: 'HEADER.BACK',
     icon: 'pi pi-arrow-left',
     severity: 'secondary',
     outlined: true,
@@ -64,7 +67,7 @@ export class PortfolioComponent implements OnInit {
   readonly headerActions: AppHeaderAction[] = [
     {
       id: 'logout',
-      label: 'Sign Out',
+      labelKey: 'HEADER.SIGN_OUT',
       icon: 'pi pi-sign-out',
       severity: 'secondary',
       outlined: true,
@@ -112,11 +115,11 @@ export class PortfolioComponent implements OnInit {
 
   deleteAccount(account: PortfolioAccount): void {
     this.confirmationService.confirm({
-      header: 'Delete Account',
-      message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+      header: this.translate.instant('PORTFOLIO.CONFIRM_DELETE_HEADER'),
+      message: this.translate.instant('PORTFOLIO.CONFIRM_DELETE_MESSAGE', { name: account.name }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.translate.instant('PORTFOLIO.CONFIRM_DELETE_ACCEPT'),
+      rejectLabel: this.translate.instant('PORTFOLIO.CONFIRM_DELETE_REJECT'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       accept: async () => {

@@ -7,11 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { UserService, User, UpdateUserRequest } from '../../core/services/user.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'vr-edit-user-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule, TranslatePipe],
   templateUrl: './edit-user-dialog.component.html',
   styleUrl: './edit-user-dialog.component.scss',
 })
@@ -19,6 +20,7 @@ export class EditUserDialogComponent implements OnChanges {
   private readonly userSvc = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   @Input() visible = false;
   @Input() user: User | null = null;
@@ -33,10 +35,12 @@ export class EditUserDialogComponent implements OnChanges {
     password: ['', [Validators.minLength(8)]],
   });
 
-  readonly roles = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'User', value: 'user' },
-  ];
+  get roles() {
+    return [
+      { label: this.translate.instant('EDIT_USER_DIALOG.ROLE_ADMIN'), value: 'admin' },
+      { label: this.translate.instant('EDIT_USER_DIALOG.ROLE_USER'), value: 'user' },
+    ];
+  }
 
   get isSelf(): boolean {
     return this.user?.id === this.currentUserId;
@@ -72,7 +76,7 @@ export class EditUserDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'User updated successfully',
+        detail: this.translate.instant('EDIT_USER_DIALOG.TOAST_SUCCESS'),
       });
       this.close();
       this.updated.emit();
@@ -80,7 +84,7 @@ export class EditUserDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: error?.error?.error || 'Failed to update user',
+        detail: error?.error?.error || this.translate.instant('EDIT_USER_DIALOG.TOAST_ERROR'),
       });
     }
   }

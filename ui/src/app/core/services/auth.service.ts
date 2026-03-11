@@ -1,12 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
+import { LanguageService } from './language.service';
 
 export interface CurrentUser {
   id: string;
   username: string;
   full_name: string;
   role: string;
+  language?: string;
 }
 
 export interface CaptchaChallenge {
@@ -28,6 +30,7 @@ const REFRESH_TOKEN_KEY = 'vr_refresh_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly languageService = inject(LanguageService);
 
   readonly isInitialized = signal(false);
   readonly isLoggedIn = signal(false);
@@ -55,6 +58,7 @@ export class AuthService {
     if (user) {
       this.isLoggedIn.set(true);
       this.currentUser.set(user);
+      this.languageService.applyUserLanguage(user.language);
     } else {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -66,6 +70,7 @@ export class AuthService {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     this.isLoggedIn.set(true);
     this.currentUser.set(user);
+    this.languageService.applyUserLanguage(user.language);
   }
 
   async login(username: string, password: string): Promise<void> {

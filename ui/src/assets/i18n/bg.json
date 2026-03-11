@@ -252,7 +252,9 @@
     "TOAST_LOAD_ERROR": "Грешка при зареждане на потребители",
     "TOAST_ERROR": "Грешка",
     "TOAST_SUCCESS": "Успех",
-    "TOAST_SAVED": "Запазено"
+    "TOAST_SAVED": "Запазено",
+    "SETTINGS_UNSAVED_HINT": "Имате незапазени промени",
+    "TOAST_SETTINGS_SAVED": "Настройките са запазени"
   },
   "CREATE_USER_DIALOG": {
     "HEADER": "Създаване на нов потребител",

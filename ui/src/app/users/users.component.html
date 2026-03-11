@@ -30,8 +30,8 @@
               <span>{{ 'USERS.ALLOW_REGISTRATION' | translate }}</span>
             </div>
             <p-toggleSwitch
-              [ngModel]="settings.registration_enabled"
-              (ngModelChange)="saveRegistrationEnabled($event)"
+              [ngModel]="editRegistration()"
+              (ngModelChange)="editRegistration.set($event)"
               [disabled]="savingSettings()"
             />
           </div>
@@ -43,19 +43,12 @@
             </div>
             <div class="settings-item__max-users">
               <p-inputNumber
-                [ngModel]="settings.max_users"
-                (ngModelChange)="settings.max_users = $event"
+                [ngModel]="editMaxUsers()"
+                (ngModelChange)="editMaxUsers.set($event)"
                 [min]="1"
                 [max]="10000"
                 [showButtons]="true"
                 [disabled]="savingSettings()"
-              />
-              <p-button
-                [label]="'USERS.SAVE' | translate"
-                size="small"
-                [outlined]="true"
-                [loading]="savingSettings()"
-                (onClick)="saveMaxUsers(settings.max_users)"
               />
             </div>
           </div>
@@ -74,6 +67,22 @@
               />
             </div>
           </div>
+        </div>
+        <div class="settings-footer">
+          @if (settingsDirty()) {
+            <span class="settings-footer__hint">
+              <i class="pi pi-circle-fill"></i>
+              {{ 'USERS.SETTINGS_UNSAVED_HINT' | translate }}
+            </span>
+          }
+          <p-button
+            [label]="'USERS.SAVE' | translate"
+            icon="pi pi-check"
+            size="small"
+            [loading]="savingSettings()"
+            [disabled]="!settingsDirty() || savingSettings()"
+            (onClick)="saveSettings()"
+          />
         </div>
       </p-card>
     }

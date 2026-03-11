@@ -252,7 +252,9 @@
     "TOAST_LOAD_ERROR": "ユーザーの読み込みエラー",
     "TOAST_ERROR": "エラー",
     "TOAST_SUCCESS": "成功",
-    "TOAST_SAVED": "保存済み"
+    "TOAST_SAVED": "保存済み",
+    "SETTINGS_UNSAVED_HINT": "未保存の変更があります",
+    "TOAST_SETTINGS_SAVED": "設定を保存しました"
   },
   "CREATE_USER_DIALOG": {
     "HEADER": "新しいユーザーを作成",

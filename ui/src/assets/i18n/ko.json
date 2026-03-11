@@ -252,7 +252,9 @@
     "TOAST_LOAD_ERROR": "사용자 로딩 오류",
     "TOAST_ERROR": "오류",
     "TOAST_SUCCESS": "성공",
-    "TOAST_SAVED": "저장됨"
+    "TOAST_SAVED": "저장됨",
+    "SETTINGS_UNSAVED_HINT": "저장되지 않은 변경 사항이 있습니다",
+    "TOAST_SETTINGS_SAVED": "설정이 저장되었습니다"
   },
   "CREATE_USER_DIALOG": {
     "HEADER": "새 사용자 만들기",

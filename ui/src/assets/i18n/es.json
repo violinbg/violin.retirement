@@ -252,7 +252,9 @@
     "TOAST_LOAD_ERROR": "Error al cargar usuarios",
     "TOAST_ERROR": "Error",
     "TOAST_SUCCESS": "Éxito",
-    "TOAST_SAVED": "Guardado"
+    "TOAST_SAVED": "Guardado",
+    "SETTINGS_UNSAVED_HINT": "Tiene cambios sin guardar",
+    "TOAST_SETTINGS_SAVED": "Configuración guardada"
   },
   "CREATE_USER_DIALOG": {
     "HEADER": "Crear Nuevo Usuario",

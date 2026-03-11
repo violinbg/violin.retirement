@@ -252,7 +252,9 @@
     "TOAST_LOAD_ERROR": "加载用户时出错",
     "TOAST_ERROR": "错误",
     "TOAST_SUCCESS": "成功",
-    "TOAST_SAVED": "已保存"
+    "TOAST_SAVED": "已保存",
+    "SETTINGS_UNSAVED_HINT": "您有未保存的更改",
+    "TOAST_SETTINGS_SAVED": "设置已保存"
   },
   "CREATE_USER_DIALOG": {
     "HEADER": "创建新用户",

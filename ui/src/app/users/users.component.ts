@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -63,6 +63,15 @@ export class UsersComponent implements OnInit {
   editingUser = signal<User | null>(null);
   adminSettings = signal<AdminSettings | null>(null);
   savingSettings = signal(false);
+  editRegistration = signal(false);
+  editMaxUsers = signal(1);
+  private readonly settingsBaseline = signal<{ registration_enabled: boolean; max_users: number } | null>(null);
+  readonly settingsDirty = computed(() => {
+    const baseline = this.settingsBaseline();
+    if (!baseline) return false;
+    return this.editRegistration() !== baseline.registration_enabled ||
+      this.editMaxUsers() !== baseline.max_users;
+  });
 
   readonly headerLeftAction: AppHeaderAction = {
     id: 'back',
@@ -107,35 +116,47 @@ export class UsersComponent implements OnInit {
     try {
       const settings = await this.adminSvc.getSettings();
       this.adminSettings.set(settings);
+      this.initEditState(settings);
     } catch {
       // non-critical — ignore errors loading settings
     }
   }
 
-  async saveRegistrationEnabled(value: boolean): Promise<void> {
-    this.savingSettings.set(true);
-    try {
-      await this.adminSvc.updateSettings({ registration_enabled: value });
-      const current = this.adminSettings();
-      if (current) this.adminSettings.set({ ...current, registration_enabled: value });
-      this.auth.setRegistrationEnabled(value);
-    } catch {
-      this.messageService.add({ severity: 'error', summary: this.translate.instant('USERS.TOAST_ERROR'), detail: this.translate.instant('USERS.TOAST_SETTINGS_ERROR') });
-    } finally {
-      this.savingSettings.set(false);
-    }
+  private initEditState(settings: AdminSettings): void {
+    this.editRegistration.set(settings.registration_enabled);
+    this.editMaxUsers.set(settings.max_users);
+    this.settingsBaseline.set({
+      registration_enabled: settings.registration_enabled,
+      max_users: settings.max_users,
+    });
   }
 
-  async saveMaxUsers(value: number): Promise<void> {
-    if (!value || value < 1) return;
+  async saveSettings(): Promise<void> {
+    if (!this.settingsDirty() || this.savingSettings()) return;
+    const maxUsers = this.editMaxUsers();
+    if (!maxUsers || maxUsers < 1) return;
     this.savingSettings.set(true);
     try {
-      await this.adminSvc.updateSettings({ max_users: value });
+      const patch = {
+        registration_enabled: this.editRegistration(),
+        max_users: maxUsers,
+      };
+      await this.adminSvc.updateSettings(patch);
       const current = this.adminSettings();
-      if (current) this.adminSettings.set({ ...current, max_users: value });
-      this.messageService.add({ severity: 'success', summary: this.translate.instant('USERS.TOAST_SAVED'), detail: this.translate.instant('USERS.TOAST_MAX_USERS_SAVED') });
+      if (current) this.adminSettings.set({ ...current, ...patch });
+      this.settingsBaseline.set({ ...patch });
+      this.auth.setRegistrationEnabled(patch.registration_enabled);
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('USERS.TOAST_SAVED'),
+        detail: this.translate.instant('USERS.TOAST_SETTINGS_SAVED'),
+      });
     } catch {
-      this.messageService.add({ severity: 'error', summary: this.translate.instant('USERS.TOAST_ERROR'), detail: this.translate.instant('USERS.TOAST_SETTINGS_ERROR') });
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('USERS.TOAST_ERROR'),
+        detail: this.translate.instant('USERS.TOAST_SETTINGS_ERROR'),
+      });
     } finally {
       this.savingSettings.set(false);
     }

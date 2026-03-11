@@ -5,7 +5,7 @@ import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { AppHeaderAction } from './app-header.models';
-import { LanguageService } from '../../../core/services/language.service';
+import { Language, LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'vr-app-header',
@@ -51,6 +51,10 @@ export class AppHeaderComponent {
 
   onLanguageChange(code: string): void {
     this.languageService.setLanguage(code);
+  }
+
+  getLanguage(code: string): Language | undefined {
+    return this.languageService.languages.find(l => l.code === code);
   }
 
   onAction(action: AppHeaderAction): void {

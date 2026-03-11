@@ -1,6 +1,15 @@
 // PrimeIcons
 @import 'primeicons/primeicons.css';
 
+// Noto Color Emoji — open source (OFL) color emoji font for cross-platform flag rendering
+@font-face {
+  font-family: 'Noto Color Emoji';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/noto-color-emoji.ttf') format('truetype');
+}
+
 * {
   box-sizing: border-box;
 }

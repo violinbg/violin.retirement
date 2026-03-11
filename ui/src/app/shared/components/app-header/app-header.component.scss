@@ -69,6 +69,18 @@
   }
 }
 
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  &__flag {
+    font-family: 'Noto Color Emoji', sans-serif;
+    font-size: 1.1em;
+    line-height: 1;
+  }
+}
+
 @media (max-width: 720px) {
   .app-header {
     flex-wrap: wrap;

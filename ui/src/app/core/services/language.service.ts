@@ -6,15 +6,16 @@ import { firstValueFrom } from 'rxjs';
 export interface Language {
   code: string;
   label: string;
+  flag: string;
 }
 
 export const SUPPORTED_LANGUAGES: Language[] = [
-  { code: 'en', label: 'English' },
-  { code: 'bg', label: 'Български' },
-  { code: 'es', label: 'Español' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
-  { code: 'zh', label: '中文' },
+  { code: 'en', label: 'English',    flag: '🇺🇸' },
+  { code: 'bg', label: 'Български',  flag: '🇧🇬' },
+  { code: 'es', label: 'Español',    flag: '🇪🇸' },
+  { code: 'ja', label: '日本語',      flag: '🇯🇵' },
+  { code: 'ko', label: '한국어',      flag: '🇰🇷' },
+  { code: 'zh', label: '中文',        flag: '🇨🇳' },
 ];
 
 const LANGUAGE_KEY = 'vr_language';
